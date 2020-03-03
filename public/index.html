@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Tank Duel</title>
+    <meta content="width=device-width, initial-scale=1.0 user-scalable=1" name="viewport" />
+    <!-- CSS -->
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
+    <style>
+        body {
+
+        }
+        .main {
+            width: 800px;
+            height: 600px;
+            margin: 0 auto;
+            border: 1px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+        .tank {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #AAA;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            opacity: 1;
+        }
+        .hp_bar {
+            height: 3px;
+            background-color: red;
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+        }
+        .tank.hit {
+            animation-duration: 1.5s;
+            animation-timing-function: linear;
+            animation-name: hit;
+        }
+        .tank.disable {
+            z-index: -1;
+            opacity: 0;
+        }
+        .bullet {
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            border: 1px solid #AAA;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        @keyframes hit {
+            0%{
+                opacity: 1;
+            }
+            15%{
+                opacity: 0;
+            }
+            30%{
+                opacity: 1;
+            }
+            45%{
+                opacity: 0;
+            }
+            60%{
+                opacity: 1;
+            }
+            75%{
+                opacity: 0;
+            }
+            90%{
+                opacity: 1;
+            }
+            100%{
+                opacity: 1;
+            }
+
+        }
+        
+    </style>
+    <!-- liberary -->
+    <!-- <script src="https://code.jquery.com/jquery-1.12.4.min.js"
+        integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous">
+    </script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <!-- <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script> -->
+    <!-- main -->
+    
+</head>
+
+<body style="opacity:1">
+    <div id='app' class='main'>
+        <div v-for='item in characters' class='tank' :class='{hit: item.hit, disable: item.hp == 0 }' :style='{backgroundColor:item.color, left: item.x + "px", top: item.y + "px"}'>
+            <div class='hp_bar' :style='{width: item.hp + "%"}'></div>
+        </div>
+        <div v-for='ball in bullets' class='bullet' :style='{backgroundColor:ball.color, left: ball.x + "px", top: ball.y + "px"}'></div>
+    </div>
+    <script src="js/main.js"></script>
+</body>
+</html>
