@@ -1,24 +1,21 @@
 var socket = io();
 
 function init(enviroment) {
-    console.warn('--- init ---');
-    console.log(socket);
-    console.log(enviroment);
-    var character = sessionStorage.getItem('player');
-    console.log(character);
-    if (character) {
-        console.log(enviroment);
-        console.log(enviroment.player);
-        enviroment.player = character;
-        socket.emit('get_render');
-    } else {
-        socket.emit('join');
-    }
+    // var character = sessionStorage.getItem('player');
+    // if (character) {
+    //     enviroment.player = character;
+    //     socket.emit('get_render');
+    // } else {
+    //     socket.emit('join');
+    // }
+    socket.emit('join');
 }
 
 socket.on('join', function(text) {
     console.log(text);
-    app.player = text;
+    if (!app.player) {
+        app.player = text;
+    }
     // sessionStorage.setItem('player', text);
 });
 
@@ -101,7 +98,6 @@ var app = new Vue({
         }
     },
     mounted: function() {
-        // console.log(app);
         var vm = this;
         init(vm);
         this.event_binding();

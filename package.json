@@ -29,7 +29,7 @@
   "devDependencies": {},
   "bundleDependencies": [],
   "private": true,
-  "main": "node app.js",
+  "main": "app.js",
   "scripts": {
     "start": "node app.js"
   }

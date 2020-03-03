@@ -25,9 +25,15 @@
             position: absolute;
             top: 0;
             left: 0;
-            transform: translate(-50%, -50%);
+            /* transform: translate(-50%, -50%); */
             z-index: 1;
             opacity: 1;
+        }
+        .tank p {
+            text-align:center;
+            margin: 0;
+            line-height: 30px;
+            font-size: 12px;
         }
         .hp_bar {
             height: 3px;
@@ -94,12 +100,15 @@
     
 </head>
 
-<body style="opacity:1">
+<body style="opacity:0.8">
     <div id='app' class='main'>
-        <div v-for='item in characters' class='tank' :class='{hit: item.hit, disable: item.hp == 0 }' :style='{backgroundColor:item.color, left: item.x + "px", top: item.y + "px"}'>
+        <div v-for='item in characters' class='tank' :class='{hit: item.hit, disable: item.hp == 0 }' 
+             :style='{backgroundColor:item.color, transform: "translate(" + (item.x - 15) + "px," +  (item.y - 15) + "px)"}'>
+            <p>{{ item.ammo }}</p>
             <div class='hp_bar' :style='{width: item.hp + "%"}'></div>
         </div>
-        <div v-for='ball in bullets' class='bullet' :style='{backgroundColor:ball.color, left: ball.x + "px", top: ball.y + "px"}'></div>
+        <div v-for='ball in bullets' class='bullet' 
+             :style='{backgroundColor:ball.color, transform: "translate(" + (ball.x - 5) + "px," +  (ball.y - 5) + "px)"}'></div>
     </div>
     <script src="js/main.js"></script>
 </body>

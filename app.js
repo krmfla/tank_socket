@@ -72,12 +72,15 @@ function GameSet() {
         characters[char].cd = 0;
         characters[char].hit = false;
         characters[char].hit_timer = null;
-        // characters[char].aim = null;
         characters[char].hp = 100;
+        characters[char].ammo = 16;
         return io.emit('render', render());
     }
 
     function make_bullet(char) {
+        if (char.ammo <= 0) {
+            return;
+        }
         var obj = {};
         var distence = 9999;
         var aim = null;
@@ -91,6 +94,7 @@ function GameSet() {
         obj.y = char.y;
         obj.color = char.color;
         obj.char = char.char;
+        char.ammo -= 1;
         for (var target in characters) {
             if (characters[target].char !== obj.char) {
                 var _x = characters[target].x - obj.x;
@@ -108,7 +112,6 @@ function GameSet() {
             obj.offset_y = 0;
         } else {
             h = Math.sqrt(x * x + y * y);
-            // console.log(h);
             obj.offset_x = speed * x / h;
             obj.offset_y = speed * y / h;
         }
@@ -162,32 +165,34 @@ function GameSet() {
             bullets[i].x += bullets[i].offset_x;
             bullets[i].y += bullets[i].offset_y;
             if (bullets[i].x < 0 || bullets[i].x > x_max + 40) {
+                characters[bullets[i].char].ammo += 1;
                 bullets[i] = null;
+                
             } else if (bullets[i].y < 0 || bullets[i].y > y_max + 40) {
+                characters[bullets[i].char].ammo += 1;
                 bullets[i] = null;
             } else {
                 // hit test
                 for (var target in characters) {
                     // console.log(bullets);
                     if (bullets[i] && bullets[i].char !== characters[target].char) {
+                        // console.log(bullets[i]);
+                        // console.log(characters[bullets[i].char]);
                         var x = bullets[i].x - characters[target].x;
                         var y = bullets[i].y - characters[target].y;
                         var distence = Math.sqrt(x * x + y * y);
+                        // hit
                         if (distence < 15) {
                             characters[target].hp -= 5;
                             if (characters[target].hp < 0) {
                                 characters[target].hp = 0;
                                 reset_char(characters[target]);
                             }
+                            characters[bullets[i].char].ammo += 1;
                             characters[target].hit = true;
                             bullets[i] = null;
                             clearTimeout(characters[target].hit_timer);
-                            // console.log(characters[target].hit_timer);
                             close_timer(characters[target]);
-                            // characters[target].hit_timer = setTimeout(function() {
-                            //     console.log('setTimeout active');
-                            //     characters[target].hit = false;
-                            // }, 1500);
                         }
                     }
                 }
@@ -216,6 +221,7 @@ function GameSet() {
             _char.y = Math.floor(Math.random() * y_max) + 20;
             _char.hp = 100;
             _char.hit = false;
+            _char.ammo = 16;
         }, 3000);
     }
 
