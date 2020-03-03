@@ -10,8 +10,13 @@ app.use(express.static('public'));
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/public/index.html');
 });
+app.get('/hello', function (req, res) {
+    game.restart();
+    res.status(200).send('hello')
+});
 app.get('/restart', function (req, res) {
     game.restart();
+    res.status(200).send('clear')
 });
 http.listen(PORT, () => {
     console.log(`Listen on ${PORT}`);
