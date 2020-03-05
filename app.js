@@ -28,6 +28,7 @@ io.on('connection', function(socket) {
     socket.on('join', function() {
         var character = game.join();
         game.generate(character);
+        game.npc_detect();
         io.emit('join', character);
         io.emit('render', game.render());
     });
@@ -46,6 +47,7 @@ function GameSet() {
     var player = 0;
     var x_max = 760;
     var y_max = 560;
+    var npc_set = 3;
 
     setInterval(function() {
         caculator();
@@ -74,7 +76,55 @@ function GameSet() {
         characters[char].hit_timer = null;
         characters[char].hp = 100;
         characters[char].ammo = 16;
-        return io.emit('render', render());
+        // return io.emit('render', render());
+    }
+
+    function npc_detect() {
+        var index = 1;
+        while (npc_set > 0) {
+            var npc = 'npc' + index;
+            characters[npc] = {};
+            generate(npc);
+            npc_action(npc);
+            index += 1;
+            npc_set -= 1;
+        }
+    }
+
+    function npc_action(npc) {
+        var _npc = npc;
+        setInterval(function() {
+            var x_action = Math.floor(Math.random() * 3);
+            var y_action = Math.floor(Math.random() * 3);
+            if (x_action) {
+                if (x_action === 1) {
+                    characters[_npc].left = true;
+                    characters[_npc].right = false;
+                } else if (x_action === 2) {
+                    characters[_npc].left = false;
+                    characters[_npc].right = true;
+                }
+            } else if(x_action === 0) {
+                characters[_npc].left = false;
+                characters[_npc].right = false;
+            }
+            if (y_action) {
+                if (y_action === 1) {
+                    characters[_npc].up = true;
+                    characters[_npc].down = false;
+                } else if (y_action === 2) {
+                    characters[_npc].up = false;
+                    characters[_npc].down = true;
+                }
+            } else if (y_action === 0) {
+                characters[_npc].up = false;
+                characters[_npc].down = false;
+            }
+        }, 3000);
+        setInterval(function() {
+            characters[_npc].fire = !characters[_npc].fire;
+        }, 80);
+        
     }
 
     function make_bullet(char) {
@@ -145,13 +195,13 @@ function GameSet() {
             } else if (characters[char].right) {
                 characters[char].x += 2;
             }
-            if (characters[char].y < 0) {
-                characters[char].y = 0;
+            if (characters[char].y < 20) {
+                characters[char].y = 20;
             } else if (characters[char].y > y_max) {
                 characters[char].y = y_max;
             }
-            if (characters[char].x < 0) {
-                characters[char].x = 0;
+            if (characters[char].x < 20) {
+                characters[char].x = 20;
             } else if (characters[char].x > x_max) {
                 characters[char].x = x_max;
             }
@@ -245,6 +295,7 @@ function GameSet() {
     return {
         join: join,
         generate: generate,
+        npc_detect: npc_detect,
         render: render,
         action: action,
         restart: restart

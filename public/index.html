@@ -124,7 +124,7 @@
     
 </head>
 
-<body style="opacity:0.8">
+<body style="opacity:0.05">
     <div id='app' class='main'>
         <div v-for='item in characters' class='tank' :class='{hit: item.hit, disable: item.hp == 0, iam: item.char == player }' 
              :style='{backgroundColor:item.color, transform: "translate(" + (item.x - 15) + "px," +  (item.y - 15) + "px)"}'>
