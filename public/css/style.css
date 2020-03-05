@@ -1,0 +1,192 @@
+body {
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family:Arial, Helvetica, sans-serif;
+}
+.wrapper {
+    width: 100vw;
+    height: 100vh;
+}
+.main {
+    width: 800px;
+    height: 600px;
+    margin: 50px auto 150px;
+    border: 1px solid #333;
+    position: relative;
+    overflow: hidden;
+}
+.tank {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #AAA;
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* transform: translate(-50%, -50%); */
+    z-index: 1;
+    opacity: 1;
+}
+.tank p {
+    text-align:center;
+    margin: 0;
+    line-height: 30px;
+    font-size: 12px;
+}
+.hp_bar {
+    height: 3px;
+    background-color: red;
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+}
+.tank.hit {
+    animation-duration: 1.5s;
+    animation-timing-function: linear;
+    animation-name: hit;
+}
+.tank.disable {
+    z-index: -1;
+    opacity: 0 !important;
+}
+.tank.iam::before {
+    content: '▼';
+    width: 100%;
+    text-align: center;
+    color: red;
+    font-size: 12px;
+    position: absolute;
+    top: -15px;
+    left: 0;
+    animation-duration: .5s;
+    animation-name: flow;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+.bullet {
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    border: 1px solid #AAA;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.controller {
+    width: 800px;
+    height: 350px;
+    /* border: 1px solid #333; */
+    margin: 0 auto;
+    position: relative;
+}
+.box {
+    width:350px;
+    height: 350px;
+    position: absolute;
+    top: 0;
+    /* border: 1px solid red; */
+    overflow: hidden;
+}
+
+.box.direction {
+    left: 0;
+}
+.box.fire {
+    right: 0;
+}
+
+.round_panel {
+    width: 350px;
+    height: 350px;
+    border-radius: 175px;
+    background-color: #AAA;
+    position: relative;
+}
+
+.dot {
+    width: 200px;
+    height: 200px;
+    background-color: white;
+    border-radius: 100px;
+    position: absolute;
+    top: 75px;
+    left: 75px;
+    z-index: 2;
+}
+.fire_btn {
+    font-size: 28px;
+    font-weight: bold;
+    width: 350px;
+    height: 350px;
+    background-color: #DDD;
+    color: black;
+    text-align: center;
+    line-height: 350px;
+    border-radius: 175px;
+}
+.fire_btn:active {
+    background-color: #AAA;
+}
+
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Opera and Firefox */
+}
+
+@media screen and (max-width: 800px) {
+    .controller {
+        display: block;
+    }
+}
+
+@media screen and (min-width: 801px) {
+    .controller {
+        display: none;
+    }
+}
+
+@keyframes hit {
+    0%{
+        opacity: 1;
+    }
+    15%{
+        opacity: 0;
+    }
+    30%{
+        opacity: 1;
+    }
+    45%{
+        opacity: 0;
+    }
+    60%{
+        opacity: 1;
+    }
+    75%{
+        opacity: 0;
+    }
+    90%{
+        opacity: 1;
+    }
+    100%{
+        opacity: 1;
+    }
+}
+@keyframes flow {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(25%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}

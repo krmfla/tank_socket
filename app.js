@@ -48,11 +48,12 @@ function GameSet() {
     var x_max = 760;
     var y_max = 560;
     var npc_set = 3;
+    var max_ammo = 10;
 
     setInterval(function() {
         caculator();
         io.emit('render', render());
-    }, 1000 / 24);
+    }, 1000 / 20);
 
     function join(io) {
         var index = player += 1;
@@ -75,7 +76,7 @@ function GameSet() {
         characters[char].hit = false;
         characters[char].hit_timer = null;
         characters[char].hp = 100;
-        characters[char].ammo = 16;
+        characters[char].ammo = max_ammo;
         // return io.emit('render', render());
     }
 
@@ -93,6 +94,7 @@ function GameSet() {
 
     function npc_action(npc) {
         var _npc = npc;
+        var set_time = Math.floor(Math.random() * 4000) + 1000;
         setInterval(function() {
             var x_action = Math.floor(Math.random() * 3);
             var y_action = Math.floor(Math.random() * 3);
@@ -120,7 +122,7 @@ function GameSet() {
                 characters[_npc].up = false;
                 characters[_npc].down = false;
             }
-        }, 3000);
+        }, set_time);
         setInterval(function() {
             characters[_npc].fire = !characters[_npc].fire;
         }, 80);
@@ -128,7 +130,7 @@ function GameSet() {
     }
 
     function make_bullet(char) {
-        if (char.ammo <= 0) {
+        if (char.ammo <= 0 || char.hp === 0) {
             return;
         }
         var obj = {};
@@ -212,33 +214,35 @@ function GameSet() {
         }
         // bullet
         for (var i = 0; i < bullets.length; i++) {
+            var _char = bullets[i].char;
             bullets[i].x += bullets[i].offset_x;
             bullets[i].y += bullets[i].offset_y;
+            // 出界
             if (bullets[i].x < 0 || bullets[i].x > x_max + 40) {
-                characters[bullets[i].char].ammo += 1;
+                characters[_char].ammo += 1;
                 bullets[i] = null;
                 
             } else if (bullets[i].y < 0 || bullets[i].y > y_max + 40) {
-                characters[bullets[i].char].ammo += 1;
+                characters[_char].ammo += 1;
                 bullets[i] = null;
             } else {
                 // hit test
                 for (var target in characters) {
                     // console.log(bullets);
-                    if (bullets[i] && bullets[i].char !== characters[target].char) {
+                    if (bullets[i] && _char !== characters[target].char) {
                         // console.log(bullets[i]);
-                        // console.log(characters[bullets[i].char]);
+                        // console.log(characters[_char]);
                         var x = bullets[i].x - characters[target].x;
                         var y = bullets[i].y - characters[target].y;
                         var distence = Math.sqrt(x * x + y * y);
                         // hit
-                        if (distence < 15) {
-                            characters[target].hp -= 5;
-                            if (characters[target].hp < 0) {
+                        if (distence < 15 && characters[target].hp > 0) {
+                            characters[target].hp -= 12;
+                            if (characters[target].hp <= 0) {
                                 characters[target].hp = 0;
                                 reset_char(characters[target]);
                             }
-                            characters[bullets[i].char].ammo += 1;
+                            characters[_char].ammo += 1;
                             characters[target].hit = true;
                             bullets[i] = null;
                             clearTimeout(characters[target].hit_timer);
@@ -246,6 +250,9 @@ function GameSet() {
                         }
                     }
                 }
+            }
+            if (characters[_char].ammo > max_ammo) {
+                characters[_char].ammo = max_ammo;
             }
         }
         bullets = bullets.filter(function(item) {
@@ -260,18 +267,18 @@ function GameSet() {
     }
 
     function reset_char(char) {
-        console.log('reset_char');
+        // console.log('prepare reset_char');
         var _char = char;
         setTimeout(function() {
             if (_char.hp === 100) {
                 return;
             }
-            console.log('call reset_char');
+            console.log('reset_char: ' + _char.char);
             _char.x = Math.floor(Math.random() * x_max) + 20;
             _char.y = Math.floor(Math.random() * y_max) + 20;
             _char.hp = 100;
             _char.hit = false;
-            _char.ammo = 16;
+            _char.ammo = max_ammo;
         }, 3000);
     }
 
@@ -302,3 +309,4 @@ function GameSet() {
     }
 }
 
+// idle detect
