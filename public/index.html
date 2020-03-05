@@ -10,8 +10,9 @@
     <!-- <script src="https://code.jquery.com/jquery-1.12.4.min.js"
         integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous">
     </script> -->
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="js/socket-io.js"></script>
+    <!-- <script src="js/inobounce.js"></script> -->
+    <script src="js/vue.js"></script>
     <!-- <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script> -->
     <!-- main -->
     
@@ -21,10 +22,12 @@
     <div id='app' class='wrapper'>
         <!-- view -->
         <div class='main'>
-            <div v-for='item in characters' class='tank' :class='{hit: item.hit, disable: item.hp == 0, iam: item.char == player }' 
-                :style='{backgroundColor:item.color, transform: "translate(" + (item.x - 15) + "px," +  (item.y - 15) + "px)"}'>
-                <p>{{ item.ammo }}</p>
-                <div class='hp_bar' :style='{width: item.hp + "%"}'></div>
+            <div v-for='item in characters' class='tank' :class='{ hit: item.hit, disable: item.hp == 0, iam: item.char == player }' 
+                :style='{transform: "translate(" + (item.x - 15) + "px," +  (item.y - 15) + "px)"}'>
+                <div class='tank_base' :class='{ left: item.left, right: item.right, up: item.up, down: item.down }'></div>
+                <div class='tank_cannon' :style='{transform: "rotate(" + item.cannon_angle + "deg)" }'></div>
+                <!-- <p :style='{color: item.color}'>{{ item.ammo }}</p> -->
+                <div class='hp_bar' :style='{width: item.hp + "%", backgroundColor:item.color}'></div>
             </div>
             <div v-for='ball in bullets' class='bullet' 
                 :style='{backgroundColor:ball.color, transform: "translate(" + (ball.x - 5) + "px," +  (ball.y - 5) + "px)"}'></div>
@@ -37,7 +40,7 @@
                 </div>
             </div>
             <div class='box fire'>
-                <div id='fire_btn' class='fire_btn noselect'>fire</div>
+                <div id='fire_btn' class='fire_btn noselect' :class='{active: onfire}'>fire</div>
             </div>
         </div>
     </div>

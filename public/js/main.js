@@ -1,5 +1,22 @@
 var socket = io();
 
+window.onload = () => {
+    document.addEventListener('touchstart', (event) => {
+      if (event.touches.length > 1) {
+         event.preventDefault();
+      }
+    }, { passive: false });
+    
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (event) => {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+  }
+
 function init(enviroment) {
     socket.emit('join');
 }
@@ -25,7 +42,18 @@ var app = new Vue({
         dot_el: null,
         fire_el: null,
         origin_x: null,
-        origin_y: null
+        origin_y: null,
+        fire_timer: null
+    },
+    computed: {
+        onfire: function() {
+            if (this.characters[this.player]) {
+                return this.characters[this.player].fire;
+            } else {
+                return false;
+            }
+            
+        }
     },
     methods: {
         event_binding: function() {
@@ -55,12 +83,29 @@ var app = new Vue({
                 vm.action();
             }, true);
 
+            // this.fire_el.addEventListener('touchstart', function(event) {
+                // vm.fire_active(true);
+                // clearTimeout(vm.fire_timer);
+                // vm.fire_timer = setTimeout(function() {
+                //     vm.fire_active(false);
+                // }, 51);
+                // event.preventDefault();
+            // }, true);
             this.fire_el.addEventListener('touchstart', function() {
-                vm.fire_active(true);
+                // var _vm = vm;
+                // vm.fire_active(false);
+                vm.move('one-shot');
+                // clearTimeout(vm.fire_timer);
+                // vm.fire_timer = setTimeout(function() {
+                //     _vm.fire_active(false);
+                // }, 60);
             }, true);
-            this.fire_el.addEventListener('touchend', function() {
-                vm.fire_active(false);
+            this.fire_el.addEventListener('touchstart', function() {
+                vm.move(-32);
             }, true);
+            // this.fire_el.addEventListener('blur', function() {
+            //     vm.fire_active(false);
+            // }, true);
 
         },
         action(x, y) {
@@ -125,21 +170,19 @@ var app = new Vue({
                 }
             }
         },
-        fire_active(trigger) {
-            console.log('fire_active');
-            var _char = this.characters[this.player];
-            if (trigger) {
-                if (!_char.fire) {
-                    this.move(32);
-                }
-            } else {
-                if (_char.fire) {
-                    this.move(-32);
-                }
-            }
-        },
+        // fire_active(trigger) {
+        //     console.log('fire_active');
+        //     var _char = this.characters[this.player];
+        //     if (trigger) {
+        //         if (!_char.fire) {
+        //             this.move(32);
+        //         }
+        //     } else {
+        //         this.move(-32);
+        //     }
+        // },
         move: function(code) {
-            console.log(code);
+            // console.log(code);
             var vm = this;
             var direction;
             var trigger;
@@ -186,6 +229,10 @@ var app = new Vue({
                     direction = 'fire';
                     trigger = false;
                     break;
+                case 'one-shot':
+                    direction = 'one-shot';
+                    trigger = false;
+                    break;
             }
             if (vm.characters[vm.player][direction] !== trigger) {
                 socket.emit('action', {
@@ -203,5 +250,6 @@ var app = new Vue({
     }
 });
 
-// controller
+//-- controller
+// fix controller scale issue
 // direct detect

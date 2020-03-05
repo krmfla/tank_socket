@@ -45,9 +45,9 @@ function GameSet() {
     var characters = {};
     var bullets = [];
     var player = 0;
+    var npc_set = 3;
     var x_max = 760;
     var y_max = 560;
-    var npc_set = 3;
     var max_ammo = 10;
 
     setInterval(function() {
@@ -77,6 +77,8 @@ function GameSet() {
         characters[char].hit_timer = null;
         characters[char].hp = 100;
         characters[char].ammo = max_ammo;
+        characters[char].shot = false;
+        characters[char].cannon_angle = 0;
         // return io.emit('render', render());
     }
 
@@ -124,7 +126,9 @@ function GameSet() {
             }
         }, set_time);
         setInterval(function() {
-            characters[_npc].fire = !characters[_npc].fire;
+            if (characters[_npc]) {
+                characters[_npc].fire = !characters[_npc].fire;
+            }
         }, 80);
         
     }
@@ -162,12 +166,19 @@ function GameSet() {
         if (!x) {
             obj.offset_x = speed;
             obj.offset_y = 0;
+            char.cannon_angle = 0;
         } else {
             h = Math.sqrt(x * x + y * y);
             obj.offset_x = speed * x / h;
             obj.offset_y = speed * y / h;
+            char.cannon_angle = Math.atan2(y, x) * 180 / Math.PI;
         }
         bullets.push(obj);
+        // console.log('shot: ' + char.shot);
+        if (char.shot) {
+            char.fire = false;
+            char.shot = false;
+        }
     }
 
     function get_color() {
@@ -289,14 +300,20 @@ function GameSet() {
         }
     }
     function action(obj) {
-        characters[obj.character][obj.direction] = obj.trigger;
+        if (obj.direction === 'one-shot') {
+            characters[obj.character].fire = true;
+            characters[obj.character].shot = true;
+        } else {
+            characters[obj.character][obj.direction] = obj.trigger;
+        }
+        
     }
 
     function restart() {
         characters = {};
         bullets = [];
         player = 0;
-
+        npc_set = 3;
     }
 
     return {
@@ -310,3 +327,4 @@ function GameSet() {
 }
 
 // idle detect
+// fix restart issue: npc move timer
