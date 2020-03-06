@@ -19,9 +19,22 @@
 </head>
 
 <body style="opacity:0.8">
+    <div class='preload'>
+        <img src='images/boom_1.gif' />
+        <img src='images/explode.gif' />
+        <img src='images/pc_bg.jpg' />
+        <img src='images/tank_body.gif' />
+        <img src='images/tank_canon.gif' />
+        <!-- <img src='images/boom_1.gif' /> -->
+    </div>
     <div id='app' class='wrapper'>
+        <!-- login -->
+        <!-- <div class='login'>
+            <p>your name?</p>
+            <input length='6'/>
+        </div> -->
         <!-- view -->
-        <div class='main'>
+        <div class='main' :class='{buffer: isBuffer}'>
             <div v-for='item in characters' class='tank' :class='{ hit: item.hit, disable: item.hp == 0, iam: item.char == player }' 
                 :style='{transform: "translate(" + (item.x - 15) + "px," +  (item.y - 15) + "px)"}'>
                 <div class='tank_base' :class='{ left: item.left, right: item.right, up: item.up, down: item.down }'></div>

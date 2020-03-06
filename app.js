@@ -4,18 +4,18 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const PORT = process.env.PORT || 5000;
 
-var game = new GameSet();
+var battle = new BattleSet();
 
 app.use(express.static('public'));
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/public/index.html');
 });
 app.get('/hello', function (req, res) {
-    game.restart();
+    battle.restart();
     res.status(200).send('hello')
 });
 app.get('/restart', function (req, res) {
-    game.restart();
+    battle.restart();
     res.status(200).send('clear')
 });
 http.listen(PORT, () => {
@@ -26,29 +26,40 @@ http.listen(PORT, () => {
 io.on('connection', function(socket) {
     console.log('connect');
     socket.on('join', function() {
-        var character = game.join();
-        game.generate(character);
-        game.npc_detect();
+        var character = battle.join();
+        battle.generate(character);
+        battle.npc_detect();
         io.emit('join', character);
-        io.emit('render', game.render());
+        io.emit('render', battle.render());
     });
     socket.on('get_render', function() {
-        io.emit('render', game.render());
+        io.emit('render', battle.render());
     });
 
     socket.on('action', function(obj) {
-        game.action(obj);
+        battle.action(obj);
     });
 })
 
-function GameSet() {
+function StrategySet() {
+
+    return {
+        render: render
+    }
+}
+
+function BattleSet() {
     var characters = {};
     var bullets = [];
     var player = 0;
-    var npc_set = 3;
+    var npc_set = 9;
     var x_max = 760;
     var y_max = 560;
-    var max_ammo = 10;
+    var max_ammo = 8;
+    var npc_timer = [];
+    var gameset = {
+        timer: 60
+    };
 
     setInterval(function() {
         caculator();
@@ -78,8 +89,8 @@ function GameSet() {
         characters[char].hp = 100;
         characters[char].ammo = max_ammo;
         characters[char].shot = false;
+        characters[char].cd = 0;
         characters[char].cannon_angle = 0;
-        // return io.emit('render', render());
     }
 
     function npc_detect() {
@@ -97,7 +108,7 @@ function GameSet() {
     function npc_action(npc) {
         var _npc = npc;
         var set_time = Math.floor(Math.random() * 4000) + 1000;
-        setInterval(function() {
+        var action_timer = setInterval(function() {
             var x_action = Math.floor(Math.random() * 3);
             var y_action = Math.floor(Math.random() * 3);
             if (x_action) {
@@ -125,16 +136,17 @@ function GameSet() {
                 characters[_npc].down = false;
             }
         }, set_time);
-        setInterval(function() {
+        var fire_timer = setInterval(function() {
             if (characters[_npc]) {
                 characters[_npc].fire = !characters[_npc].fire;
             }
         }, 80);
-        
+        npc_timer.push(action_timer);
+        npc_timer.push(fire_timer);
     }
 
     function make_bullet(char) {
-        if (char.ammo <= 0 || char.hp === 0) {
+        if (char.ammo <= 0 || char.hp === 0 || char.cd > 0) {
             return;
         }
         var obj = {};
@@ -151,6 +163,7 @@ function GameSet() {
         obj.color = char.color;
         obj.char = char.char;
         char.ammo -= 1;
+        char.cd = 6;
         for (var target in characters) {
             if (characters[target].char !== obj.char) {
                 var _x = characters[target].x - obj.x;
@@ -219,6 +232,8 @@ function GameSet() {
                 characters[char].x = x_max;
             }
             // fire
+            characters[char].cd = characters[char].cd > 0 ? characters[char].cd -= 1 : 0;
+            
             if (characters[char].fire) {
                 make_bullet(characters[char]);
             }
@@ -248,7 +263,7 @@ function GameSet() {
                         var distence = Math.sqrt(x * x + y * y);
                         // hit
                         if (distence < 15 && characters[target].hp > 0) {
-                            characters[target].hp -= 12;
+                            characters[target].hp -= 20;
                             if (characters[target].hp <= 0) {
                                 characters[target].hp = 0;
                                 reset_char(characters[target]);
@@ -284,12 +299,13 @@ function GameSet() {
             if (_char.hp === 100) {
                 return;
             }
-            console.log('reset_char: ' + _char.char);
+            // console.log('reset_char: ' + _char.char);
             _char.x = Math.floor(Math.random() * x_max) + 20;
             _char.y = Math.floor(Math.random() * y_max) + 20;
             _char.hp = 100;
             _char.hit = false;
             _char.ammo = max_ammo;
+            _char.cd = 0;
         }, 3000);
     }
 
@@ -313,7 +329,12 @@ function GameSet() {
         characters = {};
         bullets = [];
         player = 0;
-        npc_set = 3;
+        npc_set = 9;
+        for (var i = 0; i < npc_timer.length; i++) {
+            clearInterval(npc_timer[i]);
+        }
+        npc_timer = [];
+        gameset.timer = 60;
     }
 
     return {
@@ -328,3 +349,6 @@ function GameSet() {
 
 // idle detect
 // fix restart issue: npc move timer
+// when disable no move
+// Invincible 3sec when reburn and no shoot
+// add team feature

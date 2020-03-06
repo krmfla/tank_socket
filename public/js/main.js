@@ -43,7 +43,8 @@ var app = new Vue({
         fire_el: null,
         origin_x: null,
         origin_y: null,
-        fire_timer: null
+        fire_timer: null,
+        isBuffer: true
     },
     computed: {
         onfire: function() {
@@ -83,31 +84,14 @@ var app = new Vue({
                 vm.action();
             }, true);
 
-            // this.fire_el.addEventListener('touchstart', function(event) {
-                // vm.fire_active(true);
-                // clearTimeout(vm.fire_timer);
-                // vm.fire_timer = setTimeout(function() {
-                //     vm.fire_active(false);
-                // }, 51);
-                // event.preventDefault();
-            // }, true);
             this.fire_el.addEventListener('touchstart', function() {
-                // var _vm = vm;
-                // vm.fire_active(false);
                 vm.move('one-shot');
-                // clearTimeout(vm.fire_timer);
-                // vm.fire_timer = setTimeout(function() {
-                //     _vm.fire_active(false);
-                // }, 60);
             }, true);
             this.fire_el.addEventListener('touchstart', function() {
                 vm.move(-32);
             }, true);
-            // this.fire_el.addEventListener('blur', function() {
-            //     vm.fire_active(false);
-            // }, true);
-
         },
+        // virtual controller action
         action(x, y) {
             var offset_x;
             var offset_y;
@@ -170,26 +154,22 @@ var app = new Vue({
                 }
             }
         },
-        // fire_active(trigger) {
-        //     console.log('fire_active');
-        //     var _char = this.characters[this.player];
-        //     if (trigger) {
-        //         if (!_char.fire) {
-        //             this.move(32);
-        //         }
-        //     } else {
-        //         this.move(-32);
-        //     }
-        // },
         move: function(code) {
-            // console.log(code);
+            console.log(code);
             var vm = this;
             var direction;
             var trigger;
+            var char = this.characters[this.player];
             switch (code) {
                 case 37:
                     direction = 'left';
                     trigger = true;
+                    if (char.left) {
+                        return;
+                    }
+                    if (char.right) {
+                        this.move(-39);
+                    }
                     break; 
                 case -37: 
                     direction = 'left';
@@ -198,6 +178,12 @@ var app = new Vue({
                 case 39:
                     direction = 'right';
                     trigger = true;
+                    if (char.right) {
+                        return;
+                    }
+                    if (char.left) {
+                        this.move(-37);
+                    }
                     break; 
                 case -39: 
                     direction = 'right';
@@ -206,6 +192,12 @@ var app = new Vue({
                 case 38:
                     direction = 'up';
                     trigger = true;
+                    if (char.up) {
+                        return;
+                    }
+                    if (char.down) {
+                        this.move(-40);
+                    }
                     break; 
                 case -38: 
                     direction = 'up';
@@ -214,6 +206,12 @@ var app = new Vue({
                 case 40:
                     direction = 'down';
                     trigger = true;
+                    if (char.down) {
+                        return;
+                    }
+                    if (char.up) {
+                        this.move(-38);
+                    }
                     break; 
                 case -40: 
                     direction = 'down';
@@ -228,6 +226,10 @@ var app = new Vue({
                 case -90:
                     direction = 'fire';
                     trigger = false;
+                    break;
+                case 65:
+                    direction = 'fire';
+                    trigger = !char.fire;
                     break;
                 case 'one-shot':
                     direction = 'one-shot';
@@ -247,9 +249,15 @@ var app = new Vue({
         var vm = this;
         init(vm);
         this.event_binding();
+        setTimeout(function() {
+            vm.isBuffer = false;
+        }, 5000);
     }
 });
 
-//-- controller
+//---- controller
 // fix controller scale issue
-// direct detect
+// fix key down keep shoot
+// bullet overheat
+// fix bomber effect
+// direct detect (remember last control and check after render)
