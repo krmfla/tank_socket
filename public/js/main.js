@@ -15,21 +15,61 @@ window.onload = () => {
       }
       lastTouchEnd = now;
     }, false);
-  }
-
-function init(enviroment) {
-    socket.emit('join');
 }
 
-socket.on('join', function(text) {
-    if (!app.player) {
-        app.player = text;
+// function init(enviroment) {
+//     socket.emit('join');
+// }
+
+socket.on('dispatch_series', function(value) {
+    console.log('series: ' + value);
+    app.series = value;
+});
+
+// socket.on('join', function(text) {
+//     if (!app.player) {
+//         app.player = text;
+//     }
+// });
+
+socket.on('change_phase', function(text) {
+    console.log(text);
+    app.game_set.phase = text;
+});
+
+socket.on('strategy_render', function(obj) {
+    if (app.game_set.phase !== 'strategy') {
+        return;
+    }
+    // console.log(obj);
+    app.game_set = obj.game_set;
+    app.camps = obj.camps;
+    app.country = obj.country;
+    app.battle_group = obj.battle_group;
+});
+
+socket.on('dispatch_player', function(characters) {
+    // console.warn('dispatch_player');
+    // console.log(app.series);
+    for (var char in characters) {
+        // console.log(characters[char].series);
+        if (characters[char].series === app.series) {
+            // console.log(characters[char].series);
+            app.player = characters[char].char;
+            // console.log(app.player);
+            return;
+        }
     }
 });
 
-socket.on('render', function(obj) {
+socket.on('battle_render', function(obj) {
     app.characters = obj.characters;
     app.bullets = obj.bullets;
+    app.battle_set = obj.battle_set;
+    if (app.player && !app.binding) {
+        app.binding = true;
+        app.event_binding();
+    }
 });
 
 var app = new Vue({
@@ -44,7 +84,25 @@ var app = new Vue({
         origin_x: null,
         origin_y: null,
         fire_timer: null,
-        isBuffer: true
+        isBuffer: false,
+        name: '',
+        camp: 0,
+        token: null,
+        series: null,
+        game_set: {
+            phase: 'login'
+        },
+        battle_set: {},
+        camps: {
+            allience: [],
+            axis: []
+        },
+        country: [],
+        battle_group: {
+            allience: [],
+            axis: []
+        },
+        binding: false,
     },
     computed: {
         onfire: function() {
@@ -53,10 +111,36 @@ var app = new Vue({
             } else {
                 return false;
             }
-            
         }
     },
     methods: {
+        handle_camp: function(value) {
+            this.camp = value;
+        },
+        handle_start: function() {
+            if (!this.name || !this.camp) {
+                return;
+            }
+            this.token = GetToken(12);
+            // console.log(this.token);
+            socket.emit('register', {
+                name: this.name,
+                token: this.token,
+                camp: this.camp
+            });
+            socket.emit('get_phase');
+        },
+        handle_join(item, index, camp) {
+            if (item.name || this.camp !== camp) {
+                return;
+            }
+            socket.emit('join_request', {
+                index: index,
+                camp: camp,
+                name: this.name,
+                series: this.series
+            });
+        },
         event_binding: function() {
             var vm = this;
             this.panel_el = document.getElementById('panel');
@@ -155,6 +239,10 @@ var app = new Vue({
             }
         },
         move: function(code) {
+            console.log(this.player);
+            if (!this.player) {
+                return;
+            }
             console.log(code);
             var vm = this;
             var direction;
@@ -247,15 +335,16 @@ var app = new Vue({
     },
     mounted: function() {
         var vm = this;
-        init(vm);
-        this.event_binding();
-        setTimeout(function() {
-            vm.isBuffer = false;
-        }, 5000);
+        // init(vm);
+        // this.event_binding();
+        // setTimeout(function() {
+        //     vm.isBuffer = false;
+        // }, 5000);
     }
 });
 
 //---- controller
+//aim target when reburn
 // fix controller scale issue
 // fix key down keep shoot
 // bullet overheat

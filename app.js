@@ -4,6 +4,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const PORT = process.env.PORT || 5000;
 
+var strategy = new StrategySet();
 var battle = new BattleSet();
 
 app.use(express.static('public'));
@@ -16,6 +17,7 @@ app.get('/hello', function (req, res) {
 });
 app.get('/restart', function (req, res) {
     battle.restart();
+    strategy.restart();
     res.status(200).send('clear')
 });
 http.listen(PORT, () => {
@@ -25,56 +27,277 @@ http.listen(PORT, () => {
 
 io.on('connection', function(socket) {
     console.log('connect');
-    socket.on('join', function() {
-        var character = battle.join();
-        battle.generate(character);
-        battle.npc_detect();
-        io.emit('join', character);
-        io.emit('render', battle.render());
+    // login
+    socket.on('register', function(obj) {
+        console.log('=== register ===');
+        strategy.register(obj);
+        io.emit('dispatch_series', strategy.get_series(obj.token));
+        // io.emit('change_phase', 'strategy');
     });
+
+    socket.on('get_phase', function() {
+        console.log('get_phase');
+        io.emit('change_phase', strategy.get_phase());
+    });
+
+    // strategy
+    socket.on('join_request', function(obj) {
+        strategy.join(obj);
+    });
+
+    // battle
+    // socket.on('join', function() {
+        // var character = battle.join();
+        // battle.generate(character);
+        // battle.npc_detect();
+    //     io.emit('join', character);
+    //     io.emit('render', battle.render());
+    // });
     socket.on('get_render', function() {
         io.emit('render', battle.render());
     });
-
     socket.on('action', function(obj) {
         battle.action(obj);
     });
 })
 
+/* === Strategy Set === */
+
 function StrategySet() {
+    var camps = {
+        allience: [],
+        axis: []
+    }
+    var battle_group = {
+        max_allience : 3,
+        max_axis : 3,
+        allience: [{}, {}, {}],
+        axis: [{}, {}, {}]
+    };
+    var token_mapping = [];
+    var country = [
+        { name:'Britain', own: 1 },
+        { name:'France', own: 1 },
+        { name:'Ireland', own: 1 },
+        { name:'Norway', own: 1 },
+        { name:'Netherlands', own: 1 },
+        { name:'Germany', own: 2 },
+        { name:'Italy', own: 2 },
+        { name:'Denmark', own: 2 },
+        { name:'Czech', own: 2 },
+        { name:'Poland', own: 2 }
+    ]
+    var game_set = {
+        phase: 'strategy',
+        counter: 30,
+        target_index: null,
+        target: null
+    }
+    var counter_timer = null;
+    init();
+
+    function init() {
+        select_target();
+        set_counter(true);
+    }
+
+    function select_target() {
+        var index = Math.floor(Math.random() * country.length);
+        game_set.target = country[index].name;
+        game_set.target_index = index;
+    }
+
+    function set_counter(type) {
+        if (type) {
+            counter_timer = setInterval(function() {
+                var left = 0;
+                game_set.counter -= 1;
+                if (!game_set.counter) {
+                    clearInterval(counter_timer);
+                    game_set.counter = 0;
+                    game_set.phase = 'battle';
+                    io.emit('change_phase', 'battle');
+                    battle.init(battle_group, camps);
+                }
+                io.emit('strategy_render', render());
+                for (var i = 0; i <　battle_group.allience.length; i++) {
+                    if (!battle_group.allience[i].name) {
+                        left += 1;
+                    }
+                }
+                for (var i = 0; i <　battle_group.axis.length; i++) {
+                    if (!battle_group.axis[i].name) {
+                        left += 1;
+                    }
+                }
+                if (!left) {
+                    clearInterval(counter_timer);
+                    game_set.counter = 0;
+                    game_set.phase = 'battle';
+                    io.emit('change_phase', 'battle');
+                    battle.init(battle_group, camps);
+                }
+            }, 1000);
+        } else {
+            clearInterval(counter_timer);
+        }
+    }
+
+    function register(obj) {
+        var camp = obj.camp === 1 ? 'allience' : 'axis';
+        var token_index = token_mapping.length;
+        token_mapping.push(obj.token);
+        camps[camp].push({
+            name: obj.name,
+            series: token_index,
+            crashes: 0
+        })
+    }
+
+    function get_phase() {
+        return game_set.phase;
+    }
+
+    function get_series(token) {
+        for (var i = 0; i < token_mapping.length; i++) {
+            if (token_mapping[i] === token) {
+                return i;
+            }
+        }
+    }
+
+    function join(obj) {
+        var camp = obj.camp === 1 ? 'allience' : 'axis';
+        if (battle_group[camp][obj.index] && !battle_group[camp][obj.index].name) {
+            battle_group[camp][obj.index].name = obj.name;
+            battle_group[camp][obj.index].series = obj.series;
+            console.log(battle_group[camp][obj.index].series);
+        }
+    }
+
+    function render() {
+        return {
+            game_set: game_set,
+            camps: camps,
+            country: country,
+            battle_group: battle_group
+        }
+    }
+
+    function restart() {
+        camps = {
+            allience: [],
+            axis: []
+        }
+        battle_group = {
+            max_allience : 3,
+            max_axis : 3,
+            allience: [{}, {}, {}],
+            axis: [{}, {}, {}]
+        };
+        token_mapping = [];
+        country = [
+            { name:'Britain', own: 1 },
+            { name:'France', own: 1 },
+            { name:'Ireland', own: 1 },
+            { name:'Norway', own: 1 },
+            { name:'Netherlands', own: 1 },
+            { name:'Germany', own: 2 },
+            { name:'Italy', own: 2 },
+            { name:'Denmark', own: 2 },
+            { name:'Czech', own: 2 },
+            { name:'Poland', own: 2 }
+        ]
+        game_set = {
+            phase: 'strategy',
+            counter: 30,
+            target_index: null,
+            target: null
+        }
+        counter_timer = null;
+    }
 
     return {
-        render: render
+        register: register,
+        get_series: get_series,
+        get_phase: get_phase,
+        render: render,
+        join: join,
+        restart: restart
     }
 }
+
+/* === Battle Set === */
 
 function BattleSet() {
     var characters = {};
     var bullets = [];
-    var player = 0;
-    var npc_set = 9;
-    var x_max = 760;
-    var y_max = 560;
-    var max_ammo = 8;
+    // var player = 0;
+    // var npc_set = 0;
+    var x_max = 770;
+    var y_max = 570;
+    var cd_wait = 10;
+    var max_ammo = 6;
     var npc_timer = [];
-    var gameset = {
-        timer: 60
+    var battle_set = {
+        counter: 60,
+        allience_score: 0,
+        axis_score: 0
+    };
+    var counter_timer = null;
+    var render_timer = null;
+
+    function init(groups, camps) {
+        restart();
+        for (var i = 0; i < groups.allience.length; i++) {
+            if (groups.allience[i].name) {
+                var char = 'allience' + (i + 1);
+                characters[char] = {};
+                // characters[char] = char;
+                characters[char].series = groups.allience[i].series;
+                characters[char].camp = 1;
+                characters[char].name = groups.allience[i].name;
+                generate(char);
+            } else {
+                npc_generate('alliencebot' + (i+1), 1);
+            }
+        }
+        for (var i = 0; i < groups.axis.length; i++) {
+            if (groups.axis[i].name) {
+                var char = 'axis' + (i + 1);
+                characters[char] = {};
+                // characters[char] = char;
+                characters[char].series = groups.axis[i].series;
+                characters[char].camp = 2;
+                characters[char].name = groups.axis[i].name;
+                generate(char);
+            } else {
+                npc_generate('axisbot' + (i+1), 2);
+            }
+        }
+
+        console.log(characters);
+
+        io.emit('dispatch_player', characters)
+
+        render_timer = setInterval(function() {
+            caculator();
+            io.emit('battle_render', render());
+        }, 1000 / 20);
+        
+
     };
 
-    setInterval(function() {
-        caculator();
-        io.emit('render', render());
-    }, 1000 / 20);
-
-    function join(io) {
-        var index = player += 1;
-        var char = 'p' + index;
-        characters[char] = {};
-        return char;
-    }
+    // function join(io) {
+    //     var index = player += 1;
+    //     var char = 'p' + index;
+    //     characters[char] = {};
+    //     return char;
+    // }
 
     function generate(char) {
-        characters[char].color = get_color();
+        // characters[char].color = get_color();
+        characters[char].color = characters[char].camp === 1 ? '#03a9f4' : '#f44336';
         characters[char].char = char;
         characters[char].x = Math.floor(Math.random() * x_max) + 20;
         characters[char].y = Math.floor(Math.random() * y_max) + 20;
@@ -93,7 +316,14 @@ function BattleSet() {
         characters[char].cannon_angle = 0;
     }
 
-    function npc_detect() {
+    function npc_generate(npc, camp) {
+        characters[npc] = {};
+        characters[npc].series = null;
+        characters[npc].camp = camp;
+        characters[npc].name = camp === 1 ? 'allience' : 'axis';
+        generate(npc);
+        npc_action(npc);
+        /*
         var index = 1;
         while (npc_set > 0) {
             var npc = 'npc' + index;
@@ -103,6 +333,7 @@ function BattleSet() {
             index += 1;
             npc_set -= 1;
         }
+        */
     }
 
     function npc_action(npc) {
@@ -162,10 +393,11 @@ function BattleSet() {
         obj.y = char.y;
         obj.color = char.color;
         obj.char = char.char;
+        obj.camp = char.camp;
         char.ammo -= 1;
-        char.cd = 6;
+        char.cd = cd_wait;
         for (var target in characters) {
-            if (characters[target].char !== obj.char) {
+            if (characters[target].char !== obj.char && characters[target].camp !== obj.camp) {
                 var _x = characters[target].x - obj.x;
                 var _y = characters[target].y - obj.y;
                 var _distance = Math.abs(_x) + Math.abs(_y);
@@ -194,48 +426,50 @@ function BattleSet() {
         }
     }
 
-    function get_color() {
-        var color = [null, null, null];
-        var shuffle = [0, 1, 2];
-        var higher_index = Math.floor(Math.random() * 3);
-        var lower_index = Math.floor(Math.random() * 2);
-        var middle = Math.floor(Math.random() * 200) + 20;
-        color[shuffle[higher_index]] = 220;
-        shuffle.splice(higher_index, 1);
-        color[shuffle[lower_index]] = 20;
-        shuffle.splice(lower_index, 1);
-        color[shuffle[0]] = middle;
-        return 'rgb(' + color.toString() + ')';
-    }
+    // function get_color() {
+    //     var color = [null, null, null];
+    //     var shuffle = [0, 1, 2];
+    //     var higher_index = Math.floor(Math.random() * 3);
+    //     var lower_index = Math.floor(Math.random() * 2);
+    //     var middle = Math.floor(Math.random() * 200) + 20;
+    //     color[shuffle[higher_index]] = 220;
+    //     shuffle.splice(higher_index, 1);
+    //     color[shuffle[lower_index]] = 20;
+    //     shuffle.splice(lower_index, 1);
+    //     color[shuffle[0]] = middle;
+    //     return 'rgb(' + color.toString() + ')';
+    // }
 
     function caculator() {
         for (var char in characters) {
-            // move
-            if (characters[char].up) {
-                characters[char].y -= 2;
-            } else if (characters[char].down) {
-                characters[char].y += 2;
-            }
-            if (characters[char].left) {
-                characters[char].x -= 2;
-            } else if (characters[char].right) {
-                characters[char].x += 2;
-            }
-            if (characters[char].y < 20) {
-                characters[char].y = 20;
-            } else if (characters[char].y > y_max) {
-                characters[char].y = y_max;
-            }
-            if (characters[char].x < 20) {
-                characters[char].x = 20;
-            } else if (characters[char].x > x_max) {
-                characters[char].x = x_max;
-            }
-            // fire
-            characters[char].cd = characters[char].cd > 0 ? characters[char].cd -= 1 : 0;
-            
-            if (characters[char].fire) {
-                make_bullet(characters[char]);
+            if (characters[char].hp > 0) {
+                // move
+                if (characters[char].up) {
+                    characters[char].y -= 2;
+                } else if (characters[char].down) {
+                    characters[char].y += 2;
+                }
+                if (characters[char].left) {
+                    characters[char].x -= 2;
+                } else if (characters[char].right) {
+                    characters[char].x += 2;
+                }
+                if (characters[char].y < 30) {
+                    characters[char].y = 30;
+                } else if (characters[char].y > y_max) {
+                    characters[char].y = y_max;
+                }
+                if (characters[char].x < 30) {
+                    characters[char].x = 30;
+                } else if (characters[char].x > x_max) {
+                    characters[char].x = x_max;
+                }
+                // fire
+                characters[char].cd = characters[char].cd > 0 ? characters[char].cd -= 1 : 0;
+                
+                if (characters[char].fire) {
+                    make_bullet(characters[char]);
+                }
             }
         }
         // bullet
@@ -254,10 +488,7 @@ function BattleSet() {
             } else {
                 // hit test
                 for (var target in characters) {
-                    // console.log(bullets);
-                    if (bullets[i] && _char !== characters[target].char) {
-                        // console.log(bullets[i]);
-                        // console.log(characters[_char]);
+                    if (bullets[i] && _char !== characters[target].char && bullets[i].camp !== characters[target].camp) {
                         var x = bullets[i].x - characters[target].x;
                         var y = bullets[i].y - characters[target].y;
                         var distence = Math.sqrt(x * x + y * y);
@@ -267,6 +498,11 @@ function BattleSet() {
                             if (characters[target].hp <= 0) {
                                 characters[target].hp = 0;
                                 reset_char(characters[target]);
+                                if (bullets[i].camp === 1) {
+                                    battle_set.allience_score += 1;
+                                } else {
+                                    battle_set.axis_score += 1;
+                                }
                             }
                             characters[_char].ammo += 1;
                             characters[target].hit = true;
@@ -293,7 +529,6 @@ function BattleSet() {
     }
 
     function reset_char(char) {
-        // console.log('prepare reset_char');
         var _char = char;
         setTimeout(function() {
             if (_char.hp === 100) {
@@ -312,7 +547,8 @@ function BattleSet() {
     function render() {
         return {
             characters: characters,
-            bullets: bullets 
+            bullets: bullets,
+            battle_set: battle_set
         }
     }
     function action(obj) {
@@ -328,19 +564,26 @@ function BattleSet() {
     function restart() {
         characters = {};
         bullets = [];
-        player = 0;
-        npc_set = 9;
+        // player = 0;
+        // npc_set = 9;
         for (var i = 0; i < npc_timer.length; i++) {
             clearInterval(npc_timer[i]);
         }
+        clearInterval(counter_timer);
+        clearInterval(render_timer);
         npc_timer = [];
-        gameset.timer = 60;
+        var battle_set = {
+            counter: 60,
+            allience_score: 0,
+            axis_score: 0
+        };
     }
 
     return {
-        join: join,
-        generate: generate,
-        npc_detect: npc_detect,
+        init: init,
+        // join: join,
+        // generate: generate,
+        // npc_detect: npc_detect,
         render: render,
         action: action,
         restart: restart
@@ -348,7 +591,7 @@ function BattleSet() {
 }
 
 // idle detect
-// fix restart issue: npc move timer
-// when disable no move
 // Invincible 3sec when reburn and no shoot
 // add team feature
+//---- fix restart issue: npc move timer
+//---- when disable no move
