@@ -31,44 +31,45 @@
     <div id='app' class='wrapper'>
         <!-- login -->
         <div v-if='game_set.phase=="login"' class='login'>
-            <p>your name?</p>
+            <p>名字設定</p>
             <input v-model='name' maxlength='6'/>
-            <p>Select Camp:</p>
+            <p>選擇陣營:</p>
             <div class='select_camp'>
-                <div class='camp' :class='{active: camp == 1}' @click='handle_camp(1)'>Alliance</div>
-                <div class='camp' :class='{active: camp == 2}' @click='handle_camp(2)'>Axis</div>
+                <div class='camp' :class='{active: camp == 1}' @click='handle_camp(1)'>同盟軍</div>
+                <div class='camp' :class='{active: camp == 2}' @click='handle_camp(2)'>軸心軍</div>
             </div>
-            <button class='start_btn' @click='handle_start()'>start</button>
+            <button class='start_btn' @click='handle_start()'>開始</button>
         </div>
         <!-- strategy -->
         <div v-if='game_set.phase=="strategy"' class='strategy'>
             <div class='camp_list allience'>
-                <p>Allience</p>
+                <p>同盟軍</p>
                 <div class='list_wrapper'>
                     <div v-for='char in camps.allience' class='camp_character' :class='{iam: char.series==series}'>{{ char.name }}</div>
                 </div>
                 
             </div>
             <div class='camp_list axis'>
-                <p>Axis</p>
+                <p>軸心軍</p>
                 <div class='list_wrapper'>
                     <div v-for='char in camps.axis' class='camp_character' :class='{iam: char.series==series}'>{{ char.name }}</div>
                 </div>
             </div>
             <div class='map'>
-                <div class='country' v-for='item in country' :class='{allience: item.own==1, axis: item.own==2}'>{{ item.name }}</div>
+                <div class='country' v-for='item in country' 
+                     :class='{allience: item.own==1, axis: item.own==2, engage: item.name==game_set.target.name}'>{{ item.name }}</div>
             </div>
-            <div class='battle_name'>Battle of {{ game_set.target }}</div>
+            <div v-if='game_set.target' class='battle_name'>{{ game_set.target.name }}地區戰役</div>
             <div class='counter'>{{ game_set.counter }}</div>
             <div class='join_board'>
-                <p>Allience:</p>
+                <p>同盟軍陣營:</p>
                 <div class='join_wrapper'>
                     <div class='seat' v-for='(item,index) in battle_group.allience' :class='{joinable: camp==1 && !item.name}' @click='handle_join(item, index, 1)'>
                         <p v-if='!item.name'>無</p>
                         <p v-if='item.name'>{{ item.name }}</p>
                     </div>
                 </div>
-                <p>Axis:</p>
+                <p>軸心軍陣營:</p>
                 <div class='join_wrapper'>
                     <div class='seat' v-for='(item,index) in battle_group.axis' :class='{joinable: camp==2 && !item.name}' @click='handle_join(item, index, 2)'>
                         <p v-if='!item.name'>無</p>
@@ -80,13 +81,15 @@
         </div>
         <!-- view -->
         <div v-if='game_set.phase=="battle"' class='header'>
-            <div class='hui allience'>Allience {{ battle_set.allience_score }}</div>
-            <div class='hui axis'>{{ battle_set.allience_score }} Axis</div>
+            <div class='hui allience'>同盟軍 <span>{{ battle_set.allience_score }}</span></div>
+            <div class='hui axis'><span>{{ battle_set.axis_score }}</span> 軸心軍</div>
             <div class='hui battle_counter'>{{ battle_set.counter}}</div>
         </div>
         <div v-if='game_set.phase=="battle"' class='main' :class='{buffer: isBuffer}'>
+            <div v-if='battle_set.result' class='result'>{{ battle_set.result }}</div>
             <!-- characters -->
-            <div v-for='item in characters' class='tank' :class='{ hit: item.hit, disable: item.hp == 0, iam: item.char == player }' 
+            <div v-for='item in characters' class='tank' 
+                :class='{ hit: item.hit, disable: item.hp == 0, iam: item.char == player, axis:item.camp==2  }' 
                 :style='{transform: "translate(" + (item.x - 15) + "px," +  (item.y - 15) + "px)"}'>
                 <div class='tank_name'>{{ item.name }}</div>
                 <div class='tank_base' :class='{ left: item.left, right: item.right, up: item.up, down: item.down }'></div>
@@ -109,6 +112,8 @@
                 <div id='fire_btn' class='fire_btn noselect' :class='{active: onfire}'>fire</div>
             </div>
         </div>
+        <!-- visiter -->
+        <div v-if='game_set.phase=="battle" && !player' class='visiter'>觀戰中</div>
     </div>
     <script src="js/main.js"></script>
 </body>

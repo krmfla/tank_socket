@@ -13,12 +13,12 @@ app.get('/', function (req, res) {
 });
 app.get('/hello', function (req, res) {
     battle.restart();
-    res.status(200).send('hello')
+    res.status(200).send('hello');
 });
 app.get('/restart', function (req, res) {
     battle.restart();
     strategy.restart();
-    res.status(200).send('clear')
+    res.status(200).send('clear');
 });
 http.listen(PORT, () => {
     console.log(`Listen on ${PORT}`);
@@ -37,6 +37,7 @@ io.on('connection', function(socket) {
 
     socket.on('get_phase', function() {
         console.log('get_phase');
+        console.log(strategy.get_phase());
         io.emit('change_phase', strategy.get_phase());
     });
 
@@ -62,36 +63,39 @@ io.on('connection', function(socket) {
 })
 
 /* === Strategy Set === */
-
+// TODO:
 function StrategySet() {
     var camps = {
         allience: [],
         axis: []
     }
     var battle_group = {
-        max_allience : 3,
-        max_axis : 3,
-        allience: [{}, {}, {}],
-        axis: [{}, {}, {}]
+        max_allience : 4,
+        max_axis : 4,
+        allience: [{}, {}, {}, {}],
+        axis: [{}, {}, {}, {}]
     };
     var token_mapping = [];
     var country = [
-        { name:'Britain', own: 1 },
-        { name:'France', own: 1 },
-        { name:'Ireland', own: 1 },
-        { name:'Norway', own: 1 },
-        { name:'Netherlands', own: 1 },
-        { name:'Germany', own: 2 },
-        { name:'Italy', own: 2 },
-        { name:'Denmark', own: 2 },
-        { name:'Czech', own: 2 },
-        { name:'Poland', own: 2 }
+        { name:'不列顛', own: 1 },
+        { name:'法蘭西', own: 1 },
+        { name:'愛爾蘭', own: 1 },
+        { name:'挪威', own: 1 },
+        { name:'荷比盧', own: 1 },
+        { name:'德意志', own: 2 },
+        { name:'義大利', own: 2 },
+        { name:'丹麥', own: 2 },
+        { name:'捷克', own: 2 },
+        { name:'波蘭', own: 2 }
     ]
     var game_set = {
         phase: 'strategy',
-        counter: 30,
+        counter: 20,
         target_index: null,
-        target: null
+        target: {
+            name: null,
+            own: null,
+        }
     }
     var counter_timer = null;
     init();
@@ -103,7 +107,7 @@ function StrategySet() {
 
     function select_target() {
         var index = Math.floor(Math.random() * country.length);
-        game_set.target = country[index].name;
+        game_set.target = country[index];
         game_set.target_index = index;
     }
 
@@ -112,12 +116,14 @@ function StrategySet() {
             counter_timer = setInterval(function() {
                 var left = 0;
                 game_set.counter -= 1;
-                if (!game_set.counter) {
+                // into battle
+                if (game_set.counter < 0) {
+                    game_set.counter = 0;
                     clearInterval(counter_timer);
                     game_set.counter = 0;
                     game_set.phase = 'battle';
                     io.emit('change_phase', 'battle');
-                    battle.init(battle_group, camps);
+                    battle.init(battle_group, camps, game_set);
                 }
                 io.emit('strategy_render', render());
                 for (var i = 0; i <　battle_group.allience.length; i++) {
@@ -135,7 +141,7 @@ function StrategySet() {
                     game_set.counter = 0;
                     game_set.phase = 'battle';
                     io.emit('change_phase', 'battle');
-                    battle.init(battle_group, camps);
+                    battle.init(battle_group, camps, game_set);
                 }
             }, 1000);
         } else {
@@ -171,8 +177,26 @@ function StrategySet() {
         if (battle_group[camp][obj.index] && !battle_group[camp][obj.index].name) {
             battle_group[camp][obj.index].name = obj.name;
             battle_group[camp][obj.index].series = obj.series;
-            console.log(battle_group[camp][obj.index].series);
+            // console.log(battle_group[camp][obj.index].series);
         }
+    }
+    
+    function after_campaign() {
+        game_set = {
+            phase: 'strategy',
+            counter: 20,
+            target_index: null,
+            target: null
+        };
+        battle_group = {
+            max_allience : 4,
+            max_axis : 4,
+            allience: [{}, {}, {}, {}],
+            axis: [{}, {}, {}, {}]
+        };
+        io.emit('change_phase', 'strategy');
+        io.emit('clear_player');
+        init();
     }
 
     function render() {
@@ -190,43 +214,49 @@ function StrategySet() {
             axis: []
         }
         battle_group = {
-            max_allience : 3,
-            max_axis : 3,
-            allience: [{}, {}, {}],
-            axis: [{}, {}, {}]
+            max_allience : 4,
+            max_axis : 4,
+            allience: [{}, {}, {}, {}],
+            axis: [{}, {}, {}, {}]
         };
         token_mapping = [];
         country = [
-            { name:'Britain', own: 1 },
-            { name:'France', own: 1 },
-            { name:'Ireland', own: 1 },
-            { name:'Norway', own: 1 },
-            { name:'Netherlands', own: 1 },
-            { name:'Germany', own: 2 },
-            { name:'Italy', own: 2 },
-            { name:'Denmark', own: 2 },
-            { name:'Czech', own: 2 },
-            { name:'Poland', own: 2 }
+            { name:'不列顛', own: 1 },
+            { name:'法蘭西', own: 1 },
+            { name:'愛爾蘭', own: 1 },
+            { name:'挪威', own: 1 },
+            { name:'荷比盧', own: 1 },
+            { name:'德意志', own: 2 },
+            { name:'義大利', own: 2 },
+            { name:'丹麥', own: 2 },
+            { name:'捷克', own: 2 },
+            { name:'波蘭', own: 2 }
         ]
         game_set = {
             phase: 'strategy',
-            counter: 30,
+            counter: 20,
             target_index: null,
-            target: null
+            target: {
+                name: null,
+                own: null
+            }
         }
         counter_timer = null;
+        init();
     }
 
     return {
         register: register,
         get_series: get_series,
         get_phase: get_phase,
+        after_campaign: after_campaign,
         render: render,
         join: join,
         restart: restart
     }
 }
 
+// TODO: 
 /* === Battle Set === */
 
 function BattleSet() {
@@ -236,19 +266,22 @@ function BattleSet() {
     // var npc_set = 0;
     var x_max = 770;
     var y_max = 570;
-    var cd_wait = 10;
-    var max_ammo = 6;
+    var cd_wait = 8;
+    var max_ammo = 7;
     var npc_timer = [];
     var battle_set = {
         counter: 60,
         allience_score: 0,
-        axis_score: 0
+        axis_score: 0,
+        result: '',
     };
+    var strategy_set;
     var counter_timer = null;
     var render_timer = null;
 
-    function init(groups, camps) {
+    function init(groups, camps, set) {
         restart();
+        strategy_set = set;
         for (var i = 0; i < groups.allience.length; i++) {
             if (groups.allience[i].name) {
                 var char = 'allience' + (i + 1);
@@ -275,17 +308,21 @@ function BattleSet() {
                 npc_generate('axisbot' + (i+1), 2);
             }
         }
-
-        console.log(characters);
-
+        // console.log(characters);
         io.emit('dispatch_player', characters)
 
         render_timer = setInterval(function() {
             caculator();
             io.emit('battle_render', render());
         }, 1000 / 20);
-        
 
+        counter_timer = setInterval(function() {
+            battle_set.counter -= 1;
+            if (battle_set.counter <= 0) {
+                battle_set.counter = 0;
+                result();
+            }
+        }, 1000);
     };
 
     // function join(io) {
@@ -320,7 +357,7 @@ function BattleSet() {
         characters[npc] = {};
         characters[npc].series = null;
         characters[npc].camp = camp;
-        characters[npc].name = camp === 1 ? 'allience' : 'axis';
+        characters[npc].name = camp === 1 ? '同盟軍' : '軸心軍';
         generate(npc);
         npc_action(npc);
         /*
@@ -441,6 +478,9 @@ function BattleSet() {
     // }
 
     function caculator() {
+        if (battle_set.counter <= 0) {
+            return;
+        }
         for (var char in characters) {
             if (characters[char].hp > 0) {
                 // move
@@ -493,7 +533,7 @@ function BattleSet() {
                         var y = bullets[i].y - characters[target].y;
                         var distence = Math.sqrt(x * x + y * y);
                         // hit
-                        if (distence < 15 && characters[target].hp > 0) {
+                        if (distence < 25 && characters[target].hp > 0) {
                             characters[target].hp -= 20;
                             if (characters[target].hp <= 0) {
                                 characters[target].hp = 0;
@@ -544,6 +584,31 @@ function BattleSet() {
         }, 3000);
     }
 
+    function result() {
+        clearInterval(counter_timer);
+        // clearInterval(render_timer);
+        if (strategy_set.target.own === 1) {
+            if (battle_set.allience_score >= battle_set.axis_score) {
+                battle_set.result = '同盟軍堅守' + strategy_set.target.name + '地區';
+            } else {
+                battle_set.result = '軸心軍攻陷' + strategy_set.target.name + '地區';
+                strategy_set.target.own = 2;
+            }
+        } else {
+            if (battle_set.allience_score > battle_set.axis_score) {
+                battle_set.result = '同盟軍攻陷' + strategy_set.target.name + '地區';
+                strategy_set.target.own = 1;
+            } else {
+                battle_set.result = '軸心軍堅守' + strategy_set.target.name + '地區';
+            }
+        }
+        setTimeout(function() {
+            restart();
+            io.emit('battle_render', render());
+            strategy.after_campaign();
+        }, 6000);
+    }
+
     function render() {
         return {
             characters: characters,
@@ -572,11 +637,13 @@ function BattleSet() {
         clearInterval(counter_timer);
         clearInterval(render_timer);
         npc_timer = [];
-        var battle_set = {
+        battle_set = {
             counter: 60,
             allience_score: 0,
-            axis_score: 0
+            axis_score: 0,
+            result: '',
         };
+        
     }
 
     return {

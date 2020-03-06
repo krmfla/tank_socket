@@ -126,7 +126,7 @@ input {
 .map {
     width: 400px;
     height: 290px;
-    border: 1px solid #333;
+    border: 1px solid #BBB;
     position: absolute;
     top: 0;
     left: 200px;
@@ -144,16 +144,26 @@ input {
     margin: 0 15px 15px 0;
     /* float: left; */
     display: inline-block;
+    animation-duration: .5s;
+    animation-iteration-count: infinite;
 }
 
 .country.allience {
-    border: 1px solid #03a9f4;
-    /* background-color: #03a9f4; */
+    /* border: 1px solid #03a9f4; */
+    background-color: #03a9f4;
+}
+
+.country.allience.engage {
+    animation-name: allience-engage;
 }
 
 .country.axis {
-    border: 1px solid #f44336;
-    /* background-color: #f44336; */
+    /* border: 1px solid #f44336; */
+    background-color: #f44336;
+}
+
+.country.axis.engage {
+    animation-name: axis-engage;
 }
 
 .battle_name {
@@ -161,12 +171,12 @@ input {
     height: 35px;
     line-height: 35px;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 22px;
     text-align: center;
     position: absolute;
     top: 300px;
     left: 200px;
-    border: 1px solid #333;
+    border: 1px solid #999;
 }
 
 .counter {
@@ -175,25 +185,31 @@ input {
     line-height: 35px;
     color: orange;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 22px;
     text-align: center;
     position: absolute;
     top: 345px;
     left: 200px;
-    border: 1px solid #333;
+    border: 1px solid #999;
 }
 
 .join_board {
     width: 400px;
     height: 210px;
-    border: 1px solid #333;
+    border: 1px solid #999;
     position: absolute;
     bottom: 0;
     left: 200px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.join_board p {
+    margin: 0 0 10px;
 }
 
 .join_wrapper {
-    margin-bottom:10px;
+    margin-bottom:15px;
 }
 
 .join_wrapper::after {
@@ -203,8 +219,9 @@ input {
 }
 
 .seat {
-    width: 90px;
-    line-height: 40px;
+    width: 80px;
+    line-height: 30px;
+    font-size: 12px;
     float: left;
     border: 1px solid #BBB;
     margin-right: 10px;
@@ -224,27 +241,38 @@ input {
 .header {
     width: 800px;
     position: absolute;
-    top: 0;
+    top: 10px;
     left: 50%;
     transform: translateX(-50%);
+    /* border: 1px solid red; */
 }
 
 .hui {
     display: inline-block;
+    font-weight: bold;
+}
+
+.hui span {
+    color: red;
+    font-size: 20px;
 }
 
 .hui.allience {
     float: left;
+    font-size: 16px;
 }
 
 .hui.axis {
     float: right;
+    font-size: 16px;
 }
 
 .hui.battle_counter {
     display: block;
     margin: 0 auto;
     text-align: center;
+    font-size: 26px;
+    color: orange;
 }
 
 .main {
@@ -253,7 +281,7 @@ input {
     /* margin: 100px auto 150px; */
     /* border: 1px solid #333; */
     position: fixed;
-    top: 100px;
+    top: 50px;
     left: 50%;
     transform: translateX(-50%);
     overflow: hidden;
@@ -262,9 +290,26 @@ input {
     background-size: 100% 100%;
     z-index: 0;
 }
+
+.result {
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    background-color: rgba(0,0,0,.75);
+    color: white;
+    z-index: 10;
+}
+
 .tank {
-    width: 30px;
-    height: 30px;
+    width: 50px;
+    height: 50px;
     position: absolute;
     top: 0;
     left: 0;
@@ -288,8 +333,12 @@ input {
     height: 100%;
     background-image: url('../images/tank_body.gif');
     background-size: 100% 100%;
-    transform-origin: 15px 15px;
+    transform-origin: 25px 25px;
     z-index: 2;
+}
+
+.tank.axis .tank_base {
+    /* background-image: url('../images/tank_body2.png'); */
 }
 
 .tank_base.right {
@@ -326,8 +375,12 @@ input {
     background-image: url('../images/tank_canon.gif');
     /* background-image: url('../images/explode.gif'); */
     background-size: 100% 100%;
-    transform-origin: 15px 15px;
+    transform-origin: 25px 25px;
     z-index: 2;
+}
+
+.tank.axis .tank_cannon {
+    background-image: url('../images/tank_canon2.png');
 }
 
 .tank p {
@@ -378,14 +431,13 @@ input {
     color: red;
     font-size: 12px;
     position: absolute;
-    top: -15px;
+    top: -25px;
     left: 0;
     animation-duration: .5s;
     animation-name: flow;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
 }
-
 
 .bullet {
     width: 10px;
@@ -395,7 +447,10 @@ input {
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 4;
 }
+
+/* === controller === */
 
 .controller {
     width: 800px;
@@ -459,6 +514,18 @@ input {
     background-color: #AAA;
 }
 
+.visiter {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    background-color: orange;
+    color: black;
+    text-align: center;
+    font-size: 16px;
+    position: fixed;
+    bottom: 0;
+}
+
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
         -webkit-user-select: none; /* Safari */
@@ -478,6 +545,30 @@ input {
 @media screen and (min-width: 801px) {
     .controller {
         display: none;
+    }
+}
+
+@keyframes allience-engage {
+    0% {
+        background-color: #03a9f4
+    }
+    50% {
+        background-color: white;
+    }
+    100%{
+        background-color: #03a9f4
+    }
+}
+
+@keyframes axis-engage {
+    0% {
+        background-color: #f44336;
+    }
+    50% {
+        background-color: white;
+    }
+    100%{
+        background-color: #f44336;
     }
 }
 
