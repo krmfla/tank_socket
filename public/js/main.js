@@ -67,8 +67,9 @@ var app = new Vue({
             var y = 300 - this.characters[this.player].y;
             var scale_x = ((400 - Math.abs(x)) / 400) + 1;
             // var scale_y = ((300 - Math.abs(y)) / 300) + 1;
-            console.log(scale_x);
-            return "scale(" + scale_x + ","  + scale_x + ") translate(" + x + "px, " + y + "px)";
+            // console.log(scale_x);
+            // return "scale(" + scale_x + ","  + scale_x + ") translate(" + x + "px, " + y + "px)";
+            return "scale(1.5, 1.5) translate(" + x + "px, " + y + "px)";
         }
     },
     methods: {
