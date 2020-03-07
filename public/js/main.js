@@ -56,6 +56,19 @@ var app = new Vue({
             } else {
                 return false;
             }
+        },
+        camara: function() {
+            // console.log(this.characters[this.player]);
+            // console.log(this.characters[this.player]);
+            if (window.innerWidth > 800 || !this.player || this.battle_set.result || !this.characters[this.player]) {
+                return "none";
+            }
+            var x = 400 - this.characters[this.player].x;
+            var y = 300 - this.characters[this.player].y;
+            var scale_x = ((400 - Math.abs(x)) / 400) + 1;
+            // var scale_y = ((300 - Math.abs(y)) / 300) + 1;
+            console.log(scale_x);
+            return "scale(" + scale_x + ","  + scale_x + ") translate(" + x + "px, " + y + "px)";
         }
     },
     methods: {

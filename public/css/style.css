@@ -40,12 +40,14 @@ body {
     padding: 20px;
     box-sizing: border-box;
     text-align: center;
+    font-size: 20px;
 }
 
-input {
+.login input {
     margin: 0 auto;
     padding: 10px;
     border-radius: 5px;
+    font-size: 20px;
 }
 
 .select_camp {
@@ -71,9 +73,10 @@ input {
 }
 
 .start_btn {
-    padding: 15px 20px;
-    border-radius: 10px;
+    padding: 15px 25px;
+    border-radius: 20px;
     cursor: pointer;
+    font-size: 20px;
 }
 
 /* === strategy === */
@@ -275,15 +278,28 @@ input {
     color: orange;
 }
 
+.main_wrapper {
+    width: 800px;
+    height: 600px;
+    border: 1px solid #333;
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    overflow: hidden;
+}
+
 .main {
     width: 800px;
     height: 600px;
     /* margin: 100px auto 150px; */
     /* border: 1px solid #333; */
-    position: fixed;
-    top: 50px;
-    left: 50%;
-    transform: translateX(-50%);
+    /* position: fixed; */
+    /* top: 50px; */
+    /* left: 50%; */
+    /* transform: translateX(-50%); */
+    transform-origin: 400px 300px;
     overflow: hidden;
     box-sizing: border-box;
     /* background-image: url('../images/pc_bg.jpg'); */
@@ -298,18 +314,22 @@ input {
 
 .main.ground2 {
     background-image: url('../images/ground2.png');
+    background-size: 40px 40px;
 }
 
 .main.ground3 {
     background-image: url('../images/ground3.png');
+    background-size: 40px 40px;
 }
 
 .main.ground4 {
     background-image: url('../images/ground4.png');
+    background-size: 40px 40px;
 }
 
 .main.ground5 {
     background-image: url('../images/ground5.png');
+    background-size: 40px 40px;
 }
 
 .result {
@@ -660,6 +680,15 @@ input {
 @media screen and (max-width: 800px) {
     .controller {
         display: block;
+    }
+    .login {
+        font-size: 26px;
+    }
+    .login input {
+        font-size: 26px;
+    }
+    .login .start_btn {
+        font-size: 26px;
     }
 }
 
