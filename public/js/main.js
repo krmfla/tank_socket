@@ -33,7 +33,7 @@ var app = new Vue({
         name: '',
         camp: 0,
         token: null,
-        series: null,
+        series: undefined,
         game_set: {
             phase: 'login'
         },

@@ -454,7 +454,7 @@ function BattleSet() {
         var x = null;
         var y = null;
         var h = null;
-        var speed = 10;
+        var speed = 8;
         obj.offset_x = null;
         obj.offset_y = null;
         obj.x = char.x;
