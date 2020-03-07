@@ -286,9 +286,30 @@ input {
     transform: translateX(-50%);
     overflow: hidden;
     box-sizing: border-box;
-    background-image: url('../images/pc_bg.jpg');
-    background-size: 100% 100%;
+    /* background-image: url('../images/pc_bg.jpg'); */
+    /* background-image: url('../images/ground5.png'); */
+    /* background-size: 100% 100%; */
     z-index: 0;
+}
+
+.main.ground1 {
+    background-image: url('../images/ground1.png');
+}
+
+.main.ground2 {
+    background-image: url('../images/ground2.png');
+}
+
+.main.ground3 {
+    background-image: url('../images/ground3.png');
+}
+
+.main.ground4 {
+    background-image: url('../images/ground4.png');
+}
+
+.main.ground5 {
+    background-image: url('../images/ground5.png');
 }
 
 .result {
@@ -316,54 +337,92 @@ input {
     /* transform: translate(-50%, -50%); */
     z-index: 1;
     opacity: 1;
+    /* transform: rotate(90deg); */
+    z-index: 2;
+    
 }
 
 .tank_name {
     width: 100%;
     height: 15px;
+    line-height: 15px;
     position: absolute;
     top: -15px;
     left: 0;
     text-align: center;
     font-size: 10px;
+    /* background-color: rgba(0,0,0,0.75); */
+}
+
+.tank_name span {
+    background-color: rgba(0,0,0,0.75);
+    padding: 2px 4px;
+}
+
+.tank .tank_name {
+    color: #03a9f4;
+}
+
+.tank.axis .tank_name {
+    color: #f44336;
 }
 
 .tank_base {
     width: 100%;
     height: 100%;
-    background-image: url('../images/tank_body.gif');
+    /* background-image: url('../images/tank_1.svg'); */
     background-size: 100% 100%;
     transform-origin: 25px 25px;
     z-index: 2;
 }
+.tank_base.body1 {
+    background-image: url('../images/tank_1.svg');
+}
+.tank_base.body2 {
+    background-image: url('../images/tank_2.svg');
+}
+.tank_base.body3 {
+    background-image: url('../images/tank_3.svg');
+}
+.tank_base.body4 {
+    background-image: url('../images/tank_4.svg');
+}
 
 .tank.axis .tank_base {
-    /* background-image: url('../images/tank_body2.png'); */
+    /* background-image: url('../images/tank_2.svg'); */
 }
 
 .tank_base.right {
-    transform: rotate(0deg);
+    transform: rotate(90deg);
+    /* transform: rotate(0deg); */
 }
 .tank_base.down {
-    transform: rotate(90deg);
+    transform: rotate(180deg);
+    /* transform: rotate(90deg); */
 }
 .tank_base.left {
-    transform: rotate(180deg);
+    transform: rotate(270deg);
+    /* transform: rotate(180deg); */
 }
 .tank_base.up {
-    transform: rotate(270deg);
+    transform: rotate(360deg);
+    /* transform: rotate(270deg); */
 }
 .tank_base.right.down {
-    transform: rotate(45deg);
+    transform: rotate(135deg);
+    /* transform: rotate(45deg); */
 }
 .tank_base.left.down {
-    transform: rotate(135deg);
+    transform: rotate(225deg);
+    /* transform: rotate(135deg); */
 }
 .tank_base.left.up {
-    transform: rotate(225deg);
+    transform: rotate(315deg);
+    /* transform: rotate(225deg); */
 }
 .tank_base.right.up {
-    transform: rotate(315deg);
+    transform: rotate(405deg);
+    /* transform: rotate(315deg); */
 }
 
 .tank_cannon {
@@ -372,15 +431,28 @@ input {
     position: absolute;
     top: 0;
     left: 0;
-    background-image: url('../images/tank_canon.gif');
+    /* background-image: url('../images/tank_canon_1.svg'); */
     /* background-image: url('../images/explode.gif'); */
     background-size: 100% 100%;
     transform-origin: 25px 25px;
     z-index: 2;
 }
 
+.tank_cannon.cannon1 {
+    background-image: url('../images/tank_canon_1.svg');
+}
+.tank_cannon.cannon2 {
+    background-image: url('../images/tank_canon_2.svg');
+}
+.tank_cannon.cannon3 {
+    background-image: url('../images/tank_canon_3.svg');
+}
+.tank_cannon.cannon4 {
+    background-image: url('../images/tank_canon_4.svg');
+}
+
 .tank.axis .tank_cannon {
-    background-image: url('../images/tank_canon2.png');
+    /* background-image: url('../images/tank_canon_2.svg'); */
 }
 
 .tank p {
@@ -392,7 +464,7 @@ input {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 3;
+    z-index: 4;
 }
 .hp_bar {
     height: 3px;
@@ -417,7 +489,7 @@ input {
 
 .tank.disable .tank_body {
     /* background-image: url('../images/boom_1.gif'); */
-    background-image: none;
+    /* background-image: none; */
 }
 
 .tank.disable .tank_cannon {
@@ -429,7 +501,8 @@ input {
     width: 100%;
     text-align: center;
     color: red;
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: bold;
     position: absolute;
     top: -25px;
     left: 0;
@@ -437,17 +510,18 @@ input {
     animation-name: flow;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
+    z-index: 5;
 }
 
 .bullet {
     width: 10px;
     height: 10px;
     border-radius: 5px;
-    border: 1px solid #AAA;
+    border: 1px solid #333;
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 4;
+    z-index: 1;
 }
 
 /* === controller === */
@@ -603,7 +677,7 @@ input {
         transform: translateY(0);
     }
     50% {
-        transform: translateY(25%);
+        transform: translateY(30%);
     }
     100% {
         transform: translateY(0);

@@ -19,13 +19,13 @@
     
 </head>
 
-<body style="opacity:0.8">
+<body style="opacity:1">
     <div class='preload'>
-        <img src='images/boom_1.gif' />
+        <!-- <img src='images/boom_1.gif' /> -->
         <img src='images/explode.gif' />
-        <img src='images/pc_bg.jpg' />
-        <img src='images/tank_body.gif' />
-        <img src='images/tank_canon.gif' />
+        <!-- <img src='images/pc_bg.jpg' /> -->
+        <!-- <img src='images/tank_body.gif' /> -->
+        <!-- <img src='images/tank_canon.gif' /> -->
         <!-- <img src='images/boom_1.gif' /> -->
     </div>
     <div id='app' class='wrapper'>
@@ -59,7 +59,9 @@
                 <div class='country' v-for='item in country' 
                      :class='{allience: item.own==1, axis: item.own==2, engage: item.name==game_set.target.name}'>{{ item.name }}</div>
             </div>
-            <div v-if='game_set.target' class='battle_name'>{{ game_set.target.name }}地區戰役</div>
+            <div v-if='game_set.target' class='battle_name'>
+                {{game_set.year}}年{{game_set.month}}月 {{ game_set.target.name }}地區戰役
+            </div>
             <div class='counter'>{{ game_set.counter }}</div>
             <div class='join_board'>
                 <p>同盟軍陣營:</p>
@@ -85,15 +87,18 @@
             <div class='hui axis'><span>{{ battle_set.axis_score }}</span> 軸心軍</div>
             <div class='hui battle_counter'>{{ battle_set.counter}}</div>
         </div>
-        <div v-if='game_set.phase=="battle"' class='main' :class='{buffer: isBuffer}'>
+        <div v-if='game_set.phase=="battle"' class='main' :class='{buffer: isBuffer, ground1: battle_set.ground==1,
+             ground2: battle_set.ground==2, ground3: battle_set.ground==3, ground4: battle_set.ground==4, ground5: battle_set.ground==5}'>
             <div v-if='battle_set.result' class='result'>{{ battle_set.result }}</div>
             <!-- characters -->
             <div v-for='item in characters' class='tank' 
                 :class='{ hit: item.hit, disable: item.hp == 0, iam: item.char == player, axis:item.camp==2  }' 
-                :style='{transform: "translate(" + (item.x - 15) + "px," +  (item.y - 15) + "px)"}'>
-                <div class='tank_name'>{{ item.name }}</div>
-                <div class='tank_base' :class='{ left: item.left, right: item.right, up: item.up, down: item.down }'></div>
-                <div class='tank_cannon' :style='{transform: "rotate(" + item.cannon_angle + "deg)" }'></div>
+                :style='{transform: "translate(" + (item.x - 25) + "px," +  (item.y - 25) + "px)"}'>
+                <div class='tank_name'><span>{{ item.name }}</span></div>
+                <div class='tank_base' :class='{ left: item.left, right: item.right, up: item.up, down: item.down,
+                            body1: item.body==1, body2: item.body==2, body3: item.body==3, body4: item.body==4 }'></div>
+                <div class='tank_cannon' :style='{transform: "rotate(" + (item.cannon_angle + 90) + "deg)" }'
+                     :class='{cannon1: item.cannon==1, cannon2: item.cannon==2, cannon3: item.cannon==3, cannon4: item.cannon==4}'></div>
                 <!-- <p :style='{color: item.color}'>{{ item.ammo }}</p> -->
                 <div class='hp_bar' :style='{width: item.hp + "%", backgroundColor:item.color}'></div>
             </div>

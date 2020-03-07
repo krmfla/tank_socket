@@ -95,7 +95,9 @@ function StrategySet() {
         target: {
             name: null,
             own: null,
-        }
+        },
+        year: 1940,
+        month: 5
     }
     var counter_timer = null;
     init();
@@ -182,11 +184,19 @@ function StrategySet() {
     }
     
     function after_campaign() {
+        var year = game_set.year;
+        var month = game_set.month += 1;
+        if (month > 12) {
+            year += 1;
+            month = 1;
+        }
         game_set = {
             phase: 'strategy',
             counter: 20,
             target_index: null,
-            target: null
+            target: null,
+            year: year,
+            month: month
         };
         battle_group = {
             max_allience : 4,
@@ -194,6 +204,7 @@ function StrategySet() {
             allience: [{}, {}, {}, {}],
             axis: [{}, {}, {}, {}]
         };
+        
         io.emit('change_phase', 'strategy');
         io.emit('clear_player');
         init();
@@ -239,7 +250,9 @@ function StrategySet() {
             target: {
                 name: null,
                 own: null
-            }
+            },
+            year: 1940,
+            month: 5
         }
         counter_timer = null;
         init();
@@ -266,14 +279,15 @@ function BattleSet() {
     // var npc_set = 0;
     var x_max = 770;
     var y_max = 570;
-    var cd_wait = 8;
-    var max_ammo = 7;
+    var cd_wait = 12;
+    var max_ammo = 5;
     var npc_timer = [];
     var battle_set = {
         counter: 60,
         allience_score: 0,
         axis_score: 0,
         result: '',
+        ground: 0
     };
     var strategy_set;
     var counter_timer = null;
@@ -281,6 +295,7 @@ function BattleSet() {
 
     function init(groups, camps, set) {
         restart();
+        battle_set.ground = Math.floor((Math.random() * 5)) + 1;
         strategy_set = set;
         for (var i = 0; i < groups.allience.length; i++) {
             if (groups.allience[i].name) {
@@ -336,8 +351,13 @@ function BattleSet() {
         // characters[char].color = get_color();
         characters[char].color = characters[char].camp === 1 ? '#03a9f4' : '#f44336';
         characters[char].char = char;
-        characters[char].x = Math.floor(Math.random() * x_max) + 20;
-        characters[char].y = Math.floor(Math.random() * y_max) + 20;
+        // characters[char].x = Math.floor(Math.random() * x_max) + 20;
+        if (characters[char].camp === 1) {
+            characters[char].x = 40;
+        } else {
+            characters[char].x = x_max - 10;
+        }
+        characters[char].y = Math.floor(Math.random() * (y_max - 60)) + 40;
         characters[char].left = false;
         characters[char].right = false;
         characters[char].up = false;
@@ -351,6 +371,8 @@ function BattleSet() {
         characters[char].shot = false;
         characters[char].cd = 0;
         characters[char].cannon_angle = 0;
+        characters[char].body = Math.floor(Math.random() * 4) + 1;
+        characters[char].cannon = Math.floor(Math.random() * 4) + 1;
     }
 
     function npc_generate(npc, camp) {
@@ -423,7 +445,7 @@ function BattleSet() {
         var x = null;
         var y = null;
         var h = null;
-        var speed = 5;
+        var speed = 10;
         obj.offset_x = null;
         obj.offset_y = null;
         obj.x = char.x;
@@ -575,8 +597,13 @@ function BattleSet() {
                 return;
             }
             // console.log('reset_char: ' + _char.char);
-            _char.x = Math.floor(Math.random() * x_max) + 20;
-            _char.y = Math.floor(Math.random() * y_max) + 20;
+            // _char.x = Math.floor(Math.random() * x_max) + 20;
+            if (_char.camp === 1) {
+                _char.x = 40;
+            } else {
+                _char.x = x_max - 10;
+            }
+            _char.y = Math.floor(Math.random() * y_max - 60) + 40;
             _char.hp = 100;
             _char.hit = false;
             _char.ammo = max_ammo;
@@ -642,6 +669,7 @@ function BattleSet() {
             allience_score: 0,
             axis_score: 0,
             result: '',
+            ground: 0
         };
         
     }

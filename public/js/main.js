@@ -97,6 +97,7 @@ var app = new Vue({
             });
             
             socket.on('strategy_render', function(obj) {
+                // console.log(obj);
                 if (app.game_set.phase !== 'strategy') {
                     return;
                 }
@@ -120,6 +121,7 @@ var app = new Vue({
             });
             
             socket.on('battle_render', function(obj) {
+                // console.log(obj);
                 app.characters = obj.characters;
                 app.bullets = obj.bullets;
                 app.battle_set = obj.battle_set;
@@ -332,6 +334,7 @@ var app = new Vue({
 });
 
 //---- controller
+// bug: multi join
 // scale tank size
 //aim target when reburn
 // fix controller scale issue
