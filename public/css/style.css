@@ -368,11 +368,9 @@ input {
     top: 0;
     left: 0;
     /* transform: translate(-50%, -50%); */
-    z-index: 1;
     opacity: 1;
     /* transform: rotate(90deg); */
     z-index: 2;
-    
 }
 
 .tank_name {
@@ -517,15 +515,15 @@ input {
 .tank.hit {
     animation-duration: 1.5s;
     animation-timing-function: linear;
-    animation-name: hit;
+    /* animation-name: hit; */
 }
 .tank.disable {
     /* z-index: -1;
     opacity: 0 !important; */
     animation-name: boom;
-    animation-duration: 3s;
-    animation-timing-function: linear;
-    animation-fill-mode: forwards;
+    animation-duration: 1.5s;
+    /* animation-timing-function: linear; */
+    /* animation-fill-mode: forwards; */
 }
 
 .tank.disable .tank_body {
@@ -534,7 +532,7 @@ input {
 }
 
 .tank.disable .tank_cannon {
-    background-image: url('../images/explode.gif');
+    background-image: url('../images/boom.gif');
 }
 
 .tank.iam::before {
@@ -557,12 +555,20 @@ input {
 .bullet {
     width: 10px;
     height: 10px;
-    border-radius: 5px;
-    border: 1px solid #333;
+    /* border-radius: 5px; */
+    /* border: 1px solid #333; */
     position: absolute;
     top: 0;
     left: 0;
     z-index: 1;
+    background-size: 100% 100%;
+}
+
+.bullet.allience {
+    background-image: url('../images/bullet_b.svg')
+}
+.bullet.axis {
+    background-image: url('../images/bullet_r.svg')
 }
 
 /* === controller === */
@@ -726,22 +732,26 @@ input {
 }
 
 @keyframes boom {
-    0% {
+    /* 0% {
         z-index: 1;
         opacity: 1;
+        right: 0;
+        bottom: 0;
     }
     25% {
         z-index: 1;
         opacity: 1;
     }
     26% {
+        display: none;
         z-index: -1;
         opacity: 0 !important;
     }
-    100%{
+    100% {
+        display: none;
         z-index: -1;
         opacity: 0 !important;
-    }
+    } */
 }
 
 .main.buffer {

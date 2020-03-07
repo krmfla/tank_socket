@@ -22,7 +22,7 @@
 <body style="opacity:1">
     <div class='preload'>
         <!-- <img src='images/boom_1.gif' /> -->
-        <img src='images/explode.gif' />
+        <img src='images/boom.gif' />
         <img src='images/ground1.png' />
         <img src='images/ground2.png' />
         <img src='images/ground3.png' />
@@ -37,6 +37,8 @@
         <img src='images/tank_canon_2.svg' />
         <img src='images/tank_canon_3.svg' />
         <img src='images/tank_canon_4.svg' />
+        <img src='images/bullet_r.svg' />
+        <img src='images/bullet_b.svg' />
         <!-- <img src='images/boom_1.gif' /> -->
     </div>
     <div id='app' class='wrapper'>
@@ -134,7 +136,8 @@
             </div>
             <!-- bullets -->
             <div v-for='ball in bullets' class='bullet' 
-                :style='{backgroundColor:ball.color, transform: "translate(" + (ball.x - 5) + "px," +  (ball.y - 5) + "px)"}'></div>
+                :style='{transform: "translate(" + (ball.x - 5) + "px," +  (ball.y - 5) + "px)"}'
+                :class='{allience: ball.camp==1, axis: ball.camp==2}'></div>
         </div>
         <!-- controller -->
         <div v-if='game_set.phase=="battle" && player.length > 0'  class='controller'>
