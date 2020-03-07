@@ -89,7 +89,24 @@
         </div>
         <div v-if='game_set.phase=="battle"' class='main' :class='{buffer: isBuffer, ground1: battle_set.ground==1,
              ground2: battle_set.ground==2, ground3: battle_set.ground==3, ground4: battle_set.ground==4, ground5: battle_set.ground==5}'>
-            <div v-if='battle_set.result' class='result'>{{ battle_set.result }}</div>
+            <!-- result -->
+            <div v-if='battle_set.result' class='result'>
+                <p class='result_title'>{{ battle_set.result }}</p>
+                <div class='crushes'>
+                    <p><span style='color: #03a9f4'>同盟軍 </span>擊破數  {{ battle_set.allience_score }}</p>
+                    <p class='result_detail' v-for='char in characters' v-if='char.camp==1'>
+                        {{char.name}}
+                        <span>{{char.crushes}}</span>
+                    </p>
+                </div>
+                <div class='crushes'>
+                    <p><span style='color: #f44336'>軸心軍 </span>擊破數  {{ battle_set.axis_score }}</p>
+                    <p class='result_detail' v-for='char in characters' v-if='char.camp==2'>
+                        {{char.name}}
+                        <span>{{char.crushes}}</span
+                    ></p>
+                </div>
+            </div>
             <!-- characters -->
             <div v-for='item in characters' class='tank' 
                 :class='{ hit: item.hit, disable: item.hp == 0, iam: item.char == player, axis:item.camp==2  }' 
@@ -100,7 +117,9 @@
                 <div class='tank_cannon' :style='{transform: "rotate(" + (item.cannon_angle + 90) + "deg)" }'
                      :class='{cannon1: item.cannon==1, cannon2: item.cannon==2, cannon3: item.cannon==3, cannon4: item.cannon==4}'></div>
                 <!-- <p :style='{color: item.color}'>{{ item.ammo }}</p> -->
-                <div class='hp_bar' :style='{width: item.hp + "%", backgroundColor:item.color}'></div>
+                <div class='hp_wrapper'>
+                    <div class='hp_bar' :style='{width: item.hp + "%", backgroundColor:item.color}'></div>
+                </div>
             </div>
             <!-- bullets -->
             <div v-for='ball in bullets' class='bullet' 

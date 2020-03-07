@@ -118,6 +118,7 @@ var app = new Vue({
             
             socket.on('clear_player', function() {
                 app.player = '';
+                app.binding = false;
             });
             
             socket.on('battle_render', function(obj) {

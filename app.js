@@ -273,6 +273,7 @@ function StrategySet() {
 /* === Battle Set === */
 
 function BattleSet() {
+    var game_counter = 60;
     var characters = {};
     var bullets = [];
     // var player = 0;
@@ -283,12 +284,13 @@ function BattleSet() {
     var max_ammo = 5;
     var npc_timer = [];
     var battle_set = {
-        counter: 60,
+        counter: game_counter,
         allience_score: 0,
         axis_score: 0,
         result: '',
         ground: 0
     };
+    
     var strategy_set;
     var counter_timer = null;
     var render_timer = null;
@@ -373,6 +375,7 @@ function BattleSet() {
         characters[char].cannon_angle = 0;
         characters[char].body = Math.floor(Math.random() * 4) + 1;
         characters[char].cannon = Math.floor(Math.random() * 4) + 1;
+        characters[char].crushes = 0;
     }
 
     function npc_generate(npc, camp) {
@@ -559,6 +562,7 @@ function BattleSet() {
                             characters[target].hp -= 20;
                             if (characters[target].hp <= 0) {
                                 characters[target].hp = 0;
+                                characters[_char].crushes += 1;
                                 reset_char(characters[target]);
                                 if (bullets[i].camp === 1) {
                                     battle_set.allience_score += 1;
@@ -633,7 +637,7 @@ function BattleSet() {
             restart();
             io.emit('battle_render', render());
             strategy.after_campaign();
-        }, 6000);
+        }, 8000);
     }
 
     function render() {
@@ -665,7 +669,7 @@ function BattleSet() {
         clearInterval(render_timer);
         npc_timer = [];
         battle_set = {
-            counter: 60,
+            counter: game_counter,
             allience_score: 0,
             axis_score: 0,
             result: '',
