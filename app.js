@@ -175,7 +175,13 @@ function StrategySet() {
     }
 
     function join(obj) {
+        // var exist = false;
         var camp = obj.camp === 1 ? 'allience' : 'axis';
+        for (var i = 0; i < battle_group[camp].length; i++) {
+            if(battle_group[camp][i].name === obj.name) {
+                return;
+            }
+        }
         if (battle_group[camp][obj.index] && !battle_group[camp][obj.index].name) {
             battle_group[camp][obj.index].name = obj.name;
             battle_group[camp][obj.index].series = obj.series;
@@ -448,7 +454,7 @@ function BattleSet() {
         var x = null;
         var y = null;
         var h = null;
-        var speed = 10;
+        var speed = 8;
         obj.offset_x = null;
         obj.offset_y = null;
         obj.x = char.x;
