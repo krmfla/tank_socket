@@ -100,6 +100,7 @@
             <div class='hui axis'><span>{{ battle_set.axis_score }}</span> 軸心軍</div>
             <div class='hui battle_counter'>{{ battle_set.counter}}</div>
         </div>
+        <div v-if='game_set.phase=="battle"' class='fps'>{{ latence }}ms</div>
         <!-- view -->
         <div class='main_wrapper' v-if='game_set.phase=="battle"' >
             <div class='main' :class='{buffer: isBuffer, ground1: battle_set.ground==1,

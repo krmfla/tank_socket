@@ -48,6 +48,7 @@ var app = new Vue({
             axis: []
         },
         binding: false,
+        latence: 0
     },
     computed: {
         onfire: function() {
@@ -139,6 +140,8 @@ var app = new Vue({
             
             socket.on('battle_render', function(obj) {
                 // console.log(obj);
+                var _time = new Date();
+                app.latence = _time.getTime() - obj.battle_set.timestamp;
                 app.characters = obj.characters;
                 app.bullets = obj.bullets;
                 app.battle_set = obj.battle_set;

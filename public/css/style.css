@@ -253,6 +253,7 @@ body {
 .hui {
     display: inline-block;
     font-weight: bold;
+    padding: 10px 30px;
 }
 
 .hui span {
@@ -278,12 +279,22 @@ body {
     color: orange;
 }
 
+.fps {
+    padding: 5px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0,0,0,0.75);
+    color: white;
+    font-size: 12px;
+}
+
 .main_wrapper {
     width: 800px;
     height: 600px;
     border: 1px solid #333;
     position: fixed;
-    top: 50px;
+    top: 60px;
     left: 50%;
     transform: translateX(-50%);
     background-color: #333;

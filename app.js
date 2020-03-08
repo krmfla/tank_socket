@@ -291,7 +291,8 @@ function BattleSet() {
         allience_score: 0,
         axis_score: 0,
         result: '',
-        ground: 0
+        ground: 0,
+        timestamp: 0,
     };
     
     var strategy_set;
@@ -644,6 +645,8 @@ function BattleSet() {
     }
 
     function render() {
+        var _time = new Date();
+        battle_set.timestamp = _time.getTime();
         return {
             characters: characters,
             bullets: bullets,
@@ -651,6 +654,9 @@ function BattleSet() {
         }
     }
     function action(obj) {
+        if (!characters[obj.character]) {
+            return;
+        }
         if (obj.direction === 'one-shot') {
             characters[obj.character].fire = true;
             characters[obj.character].shot = true;
@@ -676,7 +682,8 @@ function BattleSet() {
             allience_score: 0,
             axis_score: 0,
             result: '',
-            ground: 0
+            ground: 0,
+            timestamp: 0
         };
         
     }
