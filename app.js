@@ -276,7 +276,7 @@ function StrategySet() {
 /* === Battle Set === */
 
 function BattleSet() {
-    var game_counter = 10;
+    var game_counter = 60;
     var characters = {};
     var bullets = [];
     // var player = 0;
