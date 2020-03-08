@@ -48,7 +48,9 @@ var app = new Vue({
             axis: []
         },
         binding: false,
-        latence: 0
+        latency: 0,
+        renderstamp: 0,
+        render_cost: 0
     },
     computed: {
         onfire: function() {
@@ -141,7 +143,7 @@ var app = new Vue({
             socket.on('battle_render', function(obj) {
                 // console.log(obj);
                 var _time = new Date();
-                app.latence = _time.getTime() - obj.battle_set.timestamp;
+                app.latency = _time.getTime() - obj.battle_set.timestamp;
                 app.characters = obj.characters;
                 app.bullets = obj.bullets;
                 app.battle_set = obj.battle_set;
@@ -342,6 +344,14 @@ var app = new Vue({
                 });
             }
         }
+    },
+    beforeUpdate: function() {
+        var _time = new Date();
+        this.renderstamp = _time.getTime();
+    },
+    updated: function() {
+        var _time = new Date();
+        this.render_cost = _time - this.renderstamp;
     },
     mounted: function() {
         var vm = this;

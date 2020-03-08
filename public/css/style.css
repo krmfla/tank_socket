@@ -289,6 +289,10 @@ body {
     font-size: 12px;
 }
 
+.render {
+    left: 100px;
+}
+
 .main_wrapper {
     width: 800px;
     height: 600px;
