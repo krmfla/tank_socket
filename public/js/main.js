@@ -148,6 +148,9 @@ var app = new Vue({
                     app.latency = _time.getTime() - app.prev_request;
                 }
                 app.prev_request = _time.getTime();
+                if (app.latency > 75) {
+                    return;
+                }
                 app.characters = obj.characters;
                 app.bullets = obj.bullets;
                 app.battle_set = obj.battle_set;

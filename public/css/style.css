@@ -253,7 +253,7 @@ body {
 .hui {
     display: inline-block;
     font-weight: bold;
-    padding: 10px 100px;
+    padding: 10px 120px;
 }
 
 .hui span {
@@ -286,7 +286,7 @@ body {
     left: 0;
     background-color: rgba(0,0,0,0.75);
     color: white;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .render {
