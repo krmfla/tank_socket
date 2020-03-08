@@ -29,15 +29,12 @@ io.on('connection', function(socket) {
     console.log('connect');
     // login
     socket.on('register', function(obj) {
-        console.log('=== register ===');
         strategy.register(obj);
         io.emit('dispatch_series', strategy.get_series(obj.token));
         // io.emit('change_phase', 'strategy');
     });
 
     socket.on('get_phase', function() {
-        console.log('get_phase');
-        console.log(strategy.get_phase());
         io.emit('change_phase', strategy.get_phase());
     });
 
@@ -279,7 +276,7 @@ function StrategySet() {
 /* === Battle Set === */
 
 function BattleSet() {
-    var game_counter = 60;
+    var game_counter = 10;
     var characters = {};
     var bullets = [];
     // var player = 0;

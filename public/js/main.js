@@ -103,7 +103,9 @@ var app = new Vue({
         },
         socket_binding() {
             socket.on('dispatch_series', function(value) {
-                app.series = value;
+                if (app.series === undefined) {
+                    app.series = value;
+                }
             });
             
             socket.on('change_phase', function(text) {

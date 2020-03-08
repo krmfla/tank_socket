@@ -302,6 +302,7 @@ body {
     transform-origin: 400px 300px;
     overflow: hidden;
     box-sizing: border-box;
+    /* transition: transform .6s; */
     /* background-image: url('../images/pc_bg.jpg'); */
     /* background-image: url('../images/ground5.png'); */
     /* background-size: 100% 100%; */
@@ -530,6 +531,7 @@ body {
 
 .hp_bar {
     height: 3px;
+    transition: width .3s;
 }
 
 .tank.hit {
