@@ -49,6 +49,7 @@ var app = new Vue({
         },
         binding: false,
         latency: 0,
+        prev_request: 0,
         renderstamp: 0,
         render_cost: 0
     },
@@ -143,7 +144,10 @@ var app = new Vue({
             socket.on('battle_render', function(obj) {
                 // console.log(obj);
                 var _time = new Date();
-                app.latency = _time.getTime() - obj.battle_set.timestamp;
+                if (app.prev_request) {
+                    app.latency = _time.getTime() - app.prev_request;
+                }
+                app.prev_request = _time.getTime();
                 app.characters = obj.characters;
                 app.bullets = obj.bullets;
                 app.battle_set = obj.battle_set;

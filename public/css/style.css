@@ -253,7 +253,7 @@ body {
 .hui {
     display: inline-block;
     font-weight: bold;
-    padding: 10px 30px;
+    padding: 10px 100px;
 }
 
 .hui span {
@@ -290,7 +290,8 @@ body {
 }
 
 .render {
-    left: 100px;
+    left: 0px;
+    top: 30px;
 }
 
 .main_wrapper {
