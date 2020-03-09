@@ -12,6 +12,7 @@
     </script> -->
     <script src="js/socket-io.js"></script>
     <!-- <script src="js/inobounce.js"></script> -->
+    <script src="js/pixi.js"></script>
     <script src="js/vue.js"></script>
     <script src="js/utils.js"></script>
     <!-- <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script> -->
@@ -19,16 +20,14 @@
     
 </head>
 
-<body style="opacity:1">
-    <div class='preload'>
-        <!-- <img src='images/boom_1.gif' /> -->
+<body style="opacity:0.08">
+    <!-- <div class='preload'>
         <img src='images/boom.gif' />
         <img src='images/ground1.png' />
         <img src='images/ground2.png' />
         <img src='images/ground3.png' />
         <img src='images/ground4.png' />
         <img src='images/ground5.png' />
-        <!-- <img src='images/pc_bg.jpg' /> -->
         <img src='images/tank_1.svg' />
         <img src='images/tank_2.svg' />
         <img src='images/tank_3.svg' />
@@ -39,8 +38,7 @@
         <img src='images/tank_canon_4.svg' />
         <img src='images/bullet_r.svg' />
         <img src='images/bullet_b.svg' />
-        <!-- <img src='images/boom_1.gif' /> -->
-    </div>
+    </div> -->
     <div id='app' class='wrapper'>
         <!-- login -->
         <div v-if='game_set.phase=="login"' class='login'>
@@ -103,11 +101,13 @@
         <div v-if='game_set.phase=="battle"' class='fps'>freq: {{ latency }}ms</div>
         <div v-if='game_set.phase=="battle"' class='fps render'>rend: {{ render_cost }}ms</div>
         <!-- view -->
+        <!-- <div id='main_wrapper' class='main_wrapper' v-show='game_set.phase=="battle"' ></div> -->
+        <!--
         <div class='main_wrapper' v-if='game_set.phase=="battle"' >
             <div class='main' :class='{buffer: isBuffer, ground1: battle_set.ground==1,
                 ground2: battle_set.ground==2, ground3: battle_set.ground==3, ground4: battle_set.ground==4, ground5: battle_set.ground==5}'
                 :style='{transform: camara}'>
-                <!-- result -->
+                
                 <div v-if='battle_set.result' class='result'>
                     <p class='result_title'>{{ battle_set.result }}</p>
                     <div class='crushes'>
@@ -125,7 +125,7 @@
                         ></p>
                     </div>
                 </div>
-                <!-- characters -->
+                
                 <div v-for='item in characters' class='tank' 
                     :class='{ hit: item.hit, disable: item.hp == 0, iam: item.char == player, axis:item.camp==2  }' 
                     :style='{transform: "translate(" + (item.x - 25) + "px," +  (item.y - 25) + "px)"}'>
@@ -134,17 +134,18 @@
                                 body1: item.body==1, body2: item.body==2, body3: item.body==3, body4: item.body==4 }'></div>
                     <div class='tank_cannon' :style='{transform: "rotate(" + (item.cannon_angle + 90) + "deg)" }'
                         :class='{cannon1: item.cannon==1, cannon2: item.cannon==2, cannon3: item.cannon==3, cannon4: item.cannon==4}'></div>
-                    <!-- <p :style='{color: item.color}'>{{ item.ammo }}</p> -->
                     <div class='hp_wrapper'>
                         <div class='hp_bar' :style='{width: item.hp + "%", backgroundColor:item.color}'></div>
                     </div>
                 </div>
-                <!-- bullets -->
+                
                 <div v-for='ball in bullets' class='bullet' 
                     :style='{transform: "translate(" + (ball.x - 5) + "px," +  (ball.y - 5) + "px)"}'
                     :class='{allience: ball.camp==1, axis: ball.camp==2}'></div>
             </div>
         </div>
+        -->
+        
         <!-- controller -->
         <div v-if='game_set.phase=="battle" && player.length > 0'  class='controller'>
             <div class='box direction'>
@@ -159,6 +160,7 @@
         <!-- visiter -->
         <div v-if='game_set.phase=="battle" && !player' class='visiter'>觀戰中</div>
     </div>
+    <div id='main_wrapper' class='main_wrapper'></div>
     <script src="js/main.js"></script>
 </body>
 </html>

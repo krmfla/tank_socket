@@ -62,6 +62,7 @@ io.on('connection', function(socket) {
 /* === Strategy Set === */
 // TODO:
 function StrategySet() {
+    var strategy_counter = 5;
     var camps = {
         allience: [],
         axis: []
@@ -87,7 +88,7 @@ function StrategySet() {
     ]
     var game_set = {
         phase: 'strategy',
-        counter: 20,
+        counter: strategy_counter,
         target_index: null,
         target: {
             name: null,
@@ -195,7 +196,7 @@ function StrategySet() {
         }
         game_set = {
             phase: 'strategy',
-            counter: 20,
+            counter: strategy_counter,
             target_index: null,
             target: null,
             year: year,
@@ -248,7 +249,7 @@ function StrategySet() {
         ]
         game_set = {
             phase: 'strategy',
-            counter: 20,
+            counter: strategy_counter,
             target_index: null,
             target: {
                 name: null,
@@ -276,7 +277,7 @@ function StrategySet() {
 /* === Battle Set === */
 
 function BattleSet() {
-    var game_counter = 60;
+    var game_counter = 10;
     var characters = {};
     var bullets = [];
     // var player = 0;

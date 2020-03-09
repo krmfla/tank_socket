@@ -20,6 +20,7 @@ window.onload = () => {
 var app = new Vue({
     el: '#app',
     data: {
+        engine: null,
         characters: {},
         bullets: {},
         player: '',
@@ -35,7 +36,7 @@ var app = new Vue({
         token: null,
         series: undefined,
         game_set: {
-            phase: 'login'
+            phase: 'join'
         },
         battle_set: {},
         camps: {
@@ -113,6 +114,7 @@ var app = new Vue({
             });
             
             socket.on('change_phase', function(text) {
+                console.log(text);
                 app.game_set.phase = text;
             });
             
@@ -157,6 +159,9 @@ var app = new Vue({
                 if (app.player && !app.binding) {
                     app.binding = true;
                     app.event_binding();
+                }
+                if (app.engine.is_ready()) {
+                    app.engine.render(obj.characters, obj.bullets);
                 }
             });
         },
@@ -350,6 +355,9 @@ var app = new Vue({
                     'trigger': trigger
                 });
             }
+        },
+        draw_ready: function() {
+            this.engine.init(this.characters, this.bullets);
         }
     },
     beforeUpdate: function() {
@@ -367,8 +375,156 @@ var app = new Vue({
         // setTimeout(function() {
         //     vm.isBuffer = false;
         // }, 5000);
+        this.name = 'test';
+        this.camp = 1;
+        this.handle_start();
+        this.engine = new View_Engine();
     }
 });
+
+function View_Engine() {
+    var wrapper;
+    var main;
+    var ready = false;
+    var char_instance = {};
+    var ball_instance = {};
+    // var characters = {
+    //     bot: {
+    //         body: 1,
+    //         cannon: 1,
+    //         camp: 1
+    //     }
+    // };
+    // var bullets = [{
+    //     camp: 1,
+    //     x: 1,
+    //     y: 1
+    // }];
+    var engine = new PIXI.Application({
+        width: 800,
+        height: 600,
+        antialias: true,
+        backgroundColor: 0xDDDDDD,
+        resolution: 1
+    });
+    var source_mapping = {
+        body: {
+            body1: "images/tank_1.svg",
+            body2: "images/tank_2.svg",
+            body3: "images/tank_3.svg",
+            body4: "images/tank_4.svg"
+        },
+        cannon: {
+            cannon1: "images/tank_canon_1.svg",
+            cannon2: "images/tank_canon_2.svg",
+            cannon3: "images/tank_canon_3.svg",
+            cannon4: "images/tank_canon_4.svg",
+        },
+        bullet: {
+            bullet1: "images/bullet_b.svg",
+            bullet2: "images/bullet_r.svg",
+        }
+    }
+
+    PIXI.loader.add([
+        "images/tank_1.svg",
+        "images/tank_2.svg",
+        "images/tank_3.svg",
+        "images/tank_4.svg",
+        "images/tank_canon_1.svg",
+        "images/tank_canon_2.svg",
+        "images/tank_canon_3.svg",
+        "images/tank_canon_4.svg",
+        "images/ground1.png",
+        "images/ground2.png",
+        "images/ground3.png",
+        "images/ground4.png",
+        "images/ground5.png",
+        "images/bullet_r.svg",
+        "images/bullet_b.svg",
+        "images/boom.gif",
+        ])
+        .on("progress", loadProgressHandler)
+        .load(function() {
+            // init();
+            app.draw_ready();
+        });
+
+    function init(_characters, _bullets) {
+        var characters = _characters;
+        console.log(characters);
+        var assets = PIXI.loader.resources;
+
+        wrapper = document.querySelector('#main_wrapper');
+        wrapper.appendChild(engine.view);
+
+        for (var char in _characters) {
+            console.log(char);
+            console.log(characters[char]);
+            var _char = characters[char];
+            console.log(_char);
+            var body_src = get_source('body', _char.body);
+            var cannon_src = get_source('cannon', _char.cannon);
+            var body = new PIXI.Sprite(assets[body_src].texture);
+            var cannon = new PIXI.Sprite(assets[cannon_src].texture);
+            var frame = new PIXI.Graphics();
+
+            char_instance[char] = new PIXI.Container();
+            char_instance[char].position.set(20,20);
+            engine.stage.addChild(char_instance[char]);
+
+            frame.lineStyle(5, 0xFF0000, 1);
+            body.width = 50;
+            body.height = 50;
+            body.x = 0;
+            body.y = 20;
+            cannon.width = 50;
+            cannon.height = 50;
+            cannon.x = 0;
+            cannon.y = 20;
+
+            char_instance[char].addChild(frame);
+            char_instance[char].addChild(body);
+            char_instance[char].addChild(cannon);
+        }
+
+        // for (var i = 0; i < bullets.length; i++) {
+        // }
+        ready = true;
+        console.log('init done');
+    }
+
+    function get_source(part, value) {
+        console.log(part);
+        console.log(value);
+        return source_mapping[part][part + value];
+    }
+
+    function is_ready() {
+        return ready;
+    }
+
+    function render(_characters, _bullets) {
+        for (var char in _characters) {
+            char_instance[char].x = _characters[char].x;
+            char_instance[char].y = _characters[char].y;
+        }
+    }
+
+    function clean() {
+
+    }
+
+    function loadProgressHandler(obj) {
+    }
+    return {
+        init: init,
+        clean: clean,
+        render: render,
+        is_ready: is_ready
+    }
+
+}
 
 //---- controller
 // bug: multi join
