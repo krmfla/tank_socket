@@ -277,9 +277,10 @@ function StrategySet() {
 /* === Battle Set === */
 
 function BattleSet() {
-    var game_counter = 10;
+    var game_counter = 60;
     var characters = {};
     var bullets = [];
+    var bullet_index = 0;
     // var player = 0;
     // var npc_set = 0;
     var x_max = 770;
@@ -463,6 +464,8 @@ function BattleSet() {
         obj.camp = char.camp;
         char.ammo -= 1;
         char.cd = cd_wait;
+        obj.id = 'b' + bullet_index;
+        bullet_index += 1;
         for (var target in characters) {
             if (characters[target].char !== obj.char && characters[target].camp !== obj.camp) {
                 var _x = characters[target].x - obj.x;
@@ -670,6 +673,7 @@ function BattleSet() {
     function restart() {
         characters = {};
         bullets = [];
+        bullet_index = 0;
         // player = 0;
         // npc_set = 9;
         for (var i = 0; i < npc_timer.length; i++) {

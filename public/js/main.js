@@ -34,7 +34,7 @@ var app = new Vue({
         name: '',
         camp: 0,
         token: null,
-        series: undefined,
+        series: -1,
         game_set: {
             phase: 'join'
         },
@@ -409,40 +409,40 @@ function View_Engine() {
     });
     var source_mapping = {
         body: {
-            body1: "images/tank_1.svg",
-            body2: "images/tank_2.svg",
-            body3: "images/tank_3.svg",
-            body4: "images/tank_4.svg"
+            body1: "../images/tank_1.svg",
+            body2: "../images/tank_2.svg",
+            body3: "../images/tank_3.svg",
+            body4: "../images/tank_4.svg"
         },
         cannon: {
-            cannon1: "images/tank_canon_1.svg",
-            cannon2: "images/tank_canon_2.svg",
-            cannon3: "images/tank_canon_3.svg",
-            cannon4: "images/tank_canon_4.svg",
+            cannon1: "../images/tank_canon_1.svg",
+            cannon2: "../images/tank_canon_2.svg",
+            cannon3: "../images/tank_canon_3.svg",
+            cannon4: "../images/tank_canon_4.svg",
         },
         bullet: {
-            bullet1: "images/bullet_b.svg",
-            bullet2: "images/bullet_r.svg",
+            bullet1: "../images/bullet_b.svg",
+            bullet2: "../images/bullet_r.svg",
         }
     }
 
     PIXI.loader.add([
-        "images/tank_1.svg",
-        "images/tank_2.svg",
-        "images/tank_3.svg",
-        "images/tank_4.svg",
-        "images/tank_canon_1.svg",
-        "images/tank_canon_2.svg",
-        "images/tank_canon_3.svg",
-        "images/tank_canon_4.svg",
-        "images/ground1.png",
-        "images/ground2.png",
-        "images/ground3.png",
-        "images/ground4.png",
-        "images/ground5.png",
-        "images/bullet_r.svg",
-        "images/bullet_b.svg",
-        "images/boom.gif",
+        "../images/tank_1.svg",
+        "../images/tank_2.svg",
+        "../images/tank_3.svg",
+        "../images/tank_4.svg",
+        "../images/tank_canon_1.svg",
+        "../images/tank_canon_2.svg",
+        "../images/tank_canon_3.svg",
+        "../images/tank_canon_4.svg",
+        "../images/ground1.png",
+        "../images/ground2.png",
+        "../images/ground3.png",
+        "../images/ground4.png",
+        "../images/ground5.png",
+        "../images/bullet_r.svg",
+        "../images/bullet_b.svg",
+        "../images/boom.gif",
         ])
         .on("progress", loadProgressHandler)
         .load(function() {
@@ -452,17 +452,17 @@ function View_Engine() {
 
     function init(_characters, _bullets) {
         var characters = _characters;
-        console.log(characters);
+        // console.log(characters);
         var assets = PIXI.loader.resources;
 
         wrapper = document.querySelector('#main_wrapper');
         wrapper.appendChild(engine.view);
 
         for (var char in _characters) {
-            console.log(char);
-            console.log(characters[char]);
+            // console.log(char);
+            // console.log(characters[char]);
             var _char = characters[char];
-            console.log(_char);
+            // console.log(_char);
             var body_src = get_source('body', _char.body);
             var cannon_src = get_source('cannon', _char.cannon);
             var body = new PIXI.Sprite(assets[body_src].texture);
@@ -473,19 +473,25 @@ function View_Engine() {
             char_instance[char].position.set(20,20);
             engine.stage.addChild(char_instance[char]);
 
-            frame.lineStyle(5, 0xFF0000, 1);
+            frame.lineStyle(1, 0xFF0000, 1);
+            frame.drawRect(0,-10,50,70);
             body.width = 50;
             body.height = 50;
-            body.x = 0;
-            body.y = 20;
+            body.x = 25;
+            body.y = 25;
+            body.anchor.x = 0.5;
+            body.anchor.y = 0.5;
             cannon.width = 50;
             cannon.height = 50;
-            cannon.x = 0;
-            cannon.y = 20;
+            cannon.x = 25;
+            cannon.y = 25;
+            cannon.anchor.x = 0.5;
+            cannon.anchor.y = 0.5;
 
             char_instance[char].addChild(frame);
             char_instance[char].addChild(body);
             char_instance[char].addChild(cannon);
+            // console.log(char_instance[char]);
         }
 
         // for (var i = 0; i < bullets.length; i++) {
@@ -495,8 +501,8 @@ function View_Engine() {
     }
 
     function get_source(part, value) {
-        console.log(part);
-        console.log(value);
+        // console.log(part);
+        // console.log(value);
         return source_mapping[part][part + value];
     }
 
@@ -505,10 +511,69 @@ function View_Engine() {
     }
 
     function render(_characters, _bullets) {
+        var current_ball = {};
         for (var char in _characters) {
-            char_instance[char].x = _characters[char].x;
-            char_instance[char].y = _characters[char].y;
+            char_instance[char].x = _characters[char].x - 25;
+            char_instance[char].y = _characters[char].y - 25;
+            rotate(char_instance[char], _characters[char]);
         }
+        for (var key in ball_instance) {
+            current_ball[key] = 1;
+        }
+        for (var i = 0; i < _bullets.length; i++) {
+            if (ball_instance[_bullets[i].id]) {
+                ball_instance[_bullets[i].id].x = _bullets[i].x - 5;
+                delete current_ball[_bullets[i].id];
+            } else {
+                generate_ball(_bullets[i]);
+            }
+        }
+        for (var key in current_ball) {
+            engine.stage.removeChild(ball_instance[key]);
+        }
+    }
+
+    function rotate(ref, data_obj) {
+        var angle = 0;
+        if (data_obj.up) {
+            if (data_obj.left) {
+                angle = -45;
+            } else if (data_obj.right) {
+                angle = 45;
+            } else {
+                angle = 0;
+            }
+        } else if (data_obj.down) {
+            if (data_obj.left) {
+                angle = 225;
+            } else if (data_obj.right) {
+                angle = 135;
+            } else {
+                angle = 180;
+            }
+        } else {
+            if (data_obj.left) {
+                angle = 270;
+            } else if (data_obj.right) {
+                angle = 90;
+            }
+        }
+        console.log(ref);
+        ref.children[1].rotation = angle * (Math.PI / 180);
+        ref.children[2].rotation = (data_obj.cannon_angle + 90) * (Math.PI / 180);
+        // console.log(data_obj.char);
+        // console.log(data_obj.angle);
+    }
+
+    function generate_ball(obj) {
+        var ball = get_source('bullet', obj.camp);
+        var assets = PIXI.loader.resources;
+        ball_instance[obj.id] = new PIXI.Sprite(assets[ball].texture);
+        ball_instance[obj.id].width = 10;
+        ball_instance[obj.id].height = 10;
+        ball_instance[obj.id].x = obj.x - 5;
+        ball_instance[obj.id].y = obj.y - 5;
+        engine.stage.addChild(ball_instance[obj.id]);
     }
 
     function clean() {
