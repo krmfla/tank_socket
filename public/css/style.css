@@ -157,7 +157,7 @@ body {
 }
 
 .country.allience.engage {
-    /* animation-name: allience-engage; */
+    animation-name: allience-engage;
 }
 
 .country.axis {
@@ -166,7 +166,7 @@ body {
 }
 
 .country.axis.engage {
-    /* animation-name: axis-engage; */
+    animation-name: axis-engage;
 }
 
 .battle_name {
@@ -725,25 +725,25 @@ body {
 
 @keyframes allience-engage {
     0% {
-        background-color: #03a9f4
+        border-color: #03a9f4
     }
     50% {
-        background-color: white;
+        border-color: white;
     }
     100%{
-        background-color: #03a9f4
+        border-color: #03a9f4
     }
 }
 
 @keyframes axis-engage {
     0% {
-        background-color: #f44336;
+        border-color: #f44336;
     }
     50% {
-        background-color: white;
+        border-color: white;
     }
     100%{
-        background-color: #f44336;
+        border-color: #f44336;
     }
 }
 

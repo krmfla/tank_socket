@@ -503,6 +503,7 @@ function View_Engine() {
             var body = new PIXI.Sprite(assets[body_src].texture);
             var cannon = new PIXI.Sprite(assets[cannon_src].texture);
             var boom = new PIXI.Sprite(assets['images/boom2.png'].texture);
+            // TODO: add hp container
             var hp_wrapper = new PIXI.Graphics();
             var hp_bar = new PIXI.Graphics();
             var style = new PIXI.TextStyle({
@@ -554,11 +555,13 @@ function View_Engine() {
             name.y = -25;
             name.anchor.x = 0.5;
             name.anchor.y = 0.5;
-            hp_wrapper.beginFill(0x333333);
+            hp_wrapper.beginFill(0xFFFFFF);
             hp_wrapper.drawRect(-25,25,50,4);
+            hp_wrapper.endFill();
             hp_bar.beginFill(0xFF0000);
-            hp_bar.drawRect(-25,26,48,2);
-
+            hp_bar.drawRect(-25,26,48,10);
+            hp_bar.endFill();
+ 
             char_instance[char].addChild(body);
             char_instance[char].addChild(cannon);
             char_instance[char].addChild(boom);
