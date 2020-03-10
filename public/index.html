@@ -20,8 +20,8 @@
     
 </head>
 
-<body style="opacity:0.8">
-    <!-- <div class='preload'>
+<body style="opacity:1">
+    <div class='preload'>
         <img src='images/boom.gif' />
         <img src='images/ground1.png' />
         <img src='images/ground2.png' />
@@ -38,7 +38,7 @@
         <img src='images/tank_canon_4.svg' />
         <img src='images/bullet_r.svg' />
         <img src='images/bullet_b.svg' />
-    </div> -->
+    </div>
     <div id='app' class='wrapper'>
         <!-- login -->
         <div v-if='game_set.phase=="login"' class='login'>
@@ -159,8 +159,9 @@
         </div>
         <!-- visiter -->
         <div v-if='game_set.phase=="battle" && !player' class='visiter'>觀戰中</div>
+        <div id='main_wrapper' class='main_wrapper' v-show='game_set.phase=="battle"'></div>
     </div>
-    <div id='main_wrapper' class='main_wrapper'></div>
+    
     <script src="js/main.js"></script>
 </body>
 </html>

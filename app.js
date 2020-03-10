@@ -488,6 +488,8 @@ function BattleSet() {
             obj.offset_y = speed * y / h;
             char.cannon_angle = Math.atan2(y, x) * 180 / Math.PI;
         }
+        obj.x += obj.offset_x * 2;
+        obj.y += obj.offset_y * 2;
         bullets.push(obj);
         // console.log('shot: ' + char.shot);
         if (char.shot) {
