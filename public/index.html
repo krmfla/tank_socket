@@ -159,7 +159,26 @@
         </div>
         <!-- visiter -->
         <div v-if='game_set.phase=="battle" && !player' class='visiter'>觀戰中</div>
-        <div id='main_wrapper' class='main_wrapper' v-show='game_set.phase=="battle"'></div>
+        <div id='main_wrapper' class='main_wrapper' v-show='game_set.phase=="battle"'>
+            <div id='main_view' class='main' :style='{transform: camara}'></div>
+            <div v-if='battle_set.result' class='result'>
+                <p class='result_title'>{{ battle_set.result }}</p>
+                <div class='crushes'>
+                    <p><span style='color: #03a9f4'>同盟軍 </span>擊破數  {{ battle_set.allience_score }}</p>
+                    <p class='result_detail' v-for='char in characters' v-if='char.camp==1'>
+                        {{char.name}}
+                        <span>{{char.crushes}}</span>
+                    </p>
+                </div>
+                <div class='crushes'>
+                    <p><span style='color: #f44336'>軸心軍 </span>擊破數  {{ battle_set.axis_score }}</p>
+                    <p class='result_detail' v-for='char in characters' v-if='char.camp==2'>
+                        {{char.name}}
+                        <span>{{char.crushes}}</span
+                    ></p>
+                </div>
+            </div>
+        </div>
     </div>
     
     <script src="js/main.js"></script>

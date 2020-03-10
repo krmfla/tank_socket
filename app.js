@@ -62,7 +62,7 @@ io.on('connection', function(socket) {
 /* === Strategy Set === */
 // TODO:
 function StrategySet() {
-    var strategy_counter = 5;
+    var strategy_counter = 20;
     var camps = {
         allience: [],
         axis: []
