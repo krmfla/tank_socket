@@ -34,9 +34,9 @@ var app = new Vue({
         name: '',
         camp: 0,
         token: null,
-        series: undefined,
+        series: -1,
         game_set: {
-            phase: 'join'
+            phase: 'login'
         },
         battle_set: {},
         camps: {
@@ -65,12 +65,17 @@ var app = new Vue({
         camara: function() {
             // console.log(this.characters[this.player]);
             // console.log(this.characters[this.player]);
-            if (window.innerWidth > 800 || !this.player || this.battle_set.result || !this.characters[this.player]) {
+            // console.warn('camara');
+            // console.log(window.innerWidth);
+            // console.log(this.player);
+            // console.log(this.battle_set.result);
+            // console.log(this.characters[this.player]);
+            if (window.innerWidth > 801 || !this.player || this.battle_set.result || !this.characters[this.player]) {
                 return "none";
             }
             var x = 400 - this.characters[this.player].x;
             var y = 300 - this.characters[this.player].y;
-            var scale_x = ((400 - Math.abs(x)) / 400) + 1;
+            // var scale_x = ((400 - Math.abs(x)) / 400) + 1;
             // var scale_y = ((300 - Math.abs(y)) / 300) + 1;
             // console.log(scale_x);
             // return "scale(" + scale_x + ","  + scale_x + ") translate(" + x + "px, " + y + "px)";
@@ -123,6 +128,9 @@ var app = new Vue({
                 if (app.game_set.phase !== 'strategy') {
                     return;
                 }
+                if (app.engine.is_ready) {
+                    app.engine.clean();
+                }
                 app.game_set = obj.game_set;
                 app.camps = obj.camps;
                 app.country = obj.country;
@@ -144,13 +152,14 @@ var app = new Vue({
             });
             
             socket.on('battle_render', function(obj) {
+                // TODO: fix render logic
                 // console.log(obj);
                 var _time = new Date();
                 if (app.prev_request) {
                     app.latency = _time.getTime() - app.prev_request;
                 }
                 app.prev_request = _time.getTime();
-                if (app.latency > 75) {
+                if (app.latency > 100) {
                     return;
                 }
                 app.characters = obj.characters;
@@ -160,8 +169,12 @@ var app = new Vue({
                     app.binding = true;
                     app.event_binding();
                 }
-                if (app.engine.is_ready()) {
-                    app.engine.render(obj.characters, obj.bullets);
+                if (app.engine.is_loaded()) {
+                    if (app.engine.is_ready()) {
+                        app.engine.render(obj.characters, obj.bullets);
+                    } else {
+                        app.engine.init(obj.characters, obj.bullets, obj.battle_set);
+                    }       
                 }
             });
         },
@@ -356,9 +369,9 @@ var app = new Vue({
                 });
             }
         },
-        draw_ready: function() {
-            this.engine.init(this.characters, this.bullets);
-        }
+        // draw_ready: function() {
+        //     this.engine.init(this.characters, this.bullets, this.battle_set.ground);
+        // }
     },
     beforeUpdate: function() {
         var _time = new Date();
@@ -375,9 +388,9 @@ var app = new Vue({
         // setTimeout(function() {
         //     vm.isBuffer = false;
         // }, 5000);
-        this.name = 'test';
-        this.camp = 1;
-        this.handle_start();
+        // this.name = 'test';
+        // this.camp = 1;
+        // this.handle_start();
         this.engine = new View_Engine();
     }
 });
@@ -385,6 +398,7 @@ var app = new Vue({
 function View_Engine() {
     var wrapper;
     var main;
+    var loaded = false;
     var ready = false;
     var char_instance = {};
     var ball_instance = {};
@@ -423,6 +437,13 @@ function View_Engine() {
         bullet: {
             bullet1: "images/bullet_b.svg",
             bullet2: "images/bullet_r.svg",
+        },
+        ground: {
+            ground1: "images/ground1.png",
+            ground2: "images/ground2.png",
+            ground3: "images/ground3.png",
+            ground4: "images/ground4.png",
+            ground5: "images/ground5.png"
         }
     }
 
@@ -442,85 +463,277 @@ function View_Engine() {
         "images/ground5.png",
         "images/bullet_r.svg",
         "images/bullet_b.svg",
-        "images/boom.gif",
+        "images/boom2.png",
         ])
         .on("progress", loadProgressHandler)
         .load(function() {
-            // init();
-            app.draw_ready();
+            loaded = true;
         });
 
-    function init(_characters, _bullets) {
+    function init(_characters, _bullets, _battle_setp) {
+        console.warn('=== init ===');
+        clean();
+        // loaded = false;
+        ready = false;
+        char_instance = {};
+        ball_instance = {};
         var characters = _characters;
-        console.log(characters);
+        // console.log(characters);
         var assets = PIXI.loader.resources;
-
-        wrapper = document.querySelector('#main_wrapper');
+        var ground_texture = get_source('ground', _battle_setp.ground);
+        var ground = PIXI.Texture.fromImage(ground_texture);
+        // console.log(ground);
+        var ground_tiling = new PIXI.TilingSprite(ground, 800, 600);
+        
+        wrapper = document.querySelector('#main_view');
         wrapper.appendChild(engine.view);
 
+        ground_tiling.x = 0;
+        ground_tiling.y = 0;
+        engine.stage.addChild(ground_tiling);
+
+
         for (var char in _characters) {
-            console.log(char);
-            console.log(characters[char]);
+            // console.log(char);
+            // console.log(characters[char]);
             var _char = characters[char];
-            console.log(_char);
+            // console.log(_char);
             var body_src = get_source('body', _char.body);
             var cannon_src = get_source('cannon', _char.cannon);
             var body = new PIXI.Sprite(assets[body_src].texture);
             var cannon = new PIXI.Sprite(assets[cannon_src].texture);
+            var boom = new PIXI.Sprite(assets['images/boom2.png'].texture);
+            // TODO: add hp container
+            var hp_wrapper = new PIXI.Graphics();
+            var hp_bar = new PIXI.Graphics();
+            var style = new PIXI.TextStyle({
+                fontFamily: 'sans-serif',
+                fontSize: 10,
+                fill: _char.camp == 1 ? '#03a9f4' : '#f44336',
+                fontWeight: 'bold',
+                stroke: '#4a1850',
+                strokeThickness: 2,
+            });
+            var name = new PIXI.Text(_char.name, style);
+
             var frame = new PIXI.Graphics();
 
             char_instance[char] = new PIXI.Container();
             char_instance[char].position.set(20,20);
+            char_instance[char].ani_timer = null;
+
+            char_instance[char].hit_offset = -0.05;
+
             engine.stage.addChild(char_instance[char]);
 
-            frame.lineStyle(5, 0xFF0000, 1);
+            frame.lineStyle(1, 0xFF0000, 1);
+            frame.drawRect(0,-10,50,70);
+            frame.visible = false;
             body.width = 50;
             body.height = 50;
             body.x = 0;
-            body.y = 20;
+            body.y = 0;
+            body.anchor.x = 0.5;
+            body.anchor.y = 0.5;
+            body.alpha = 1;
             cannon.width = 50;
             cannon.height = 50;
             cannon.x = 0;
-            cannon.y = 20;
-
-            char_instance[char].addChild(frame);
+            cannon.y = 0;
+            cannon.anchor.x = 0.5;
+            cannon.anchor.y = 0.5;
+            cannon.alpha = 1;
+            boom.width = 50;
+            boom.height = 50;
+            boom.x = 0;
+            boom.y = 0;
+            boom.anchor.x = 0.5;
+            boom.anchor.y = 0.5;
+            boom.visible = false;
+            
+            name.x = 0;
+            name.y = -25;
+            name.anchor.x = 0.5;
+            name.anchor.y = 0.5;
+            hp_wrapper.beginFill(0xFFFFFF);
+            hp_wrapper.drawRect(-25,25,50,4);
+            hp_wrapper.endFill();
+            hp_bar.beginFill(0xFF0000);
+            hp_bar.drawRect(-25,26,48,10);
+            hp_bar.endFill();
+ 
             char_instance[char].addChild(body);
             char_instance[char].addChild(cannon);
+            char_instance[char].addChild(boom);
+            char_instance[char].addChild(frame);
+            char_instance[char].addChild(name);
+            char_instance[char].addChild(hp_wrapper);
+            char_instance[char].addChild(hp_bar);
+            // console.log(char_instance[char]);
         }
 
         // for (var i = 0; i < bullets.length; i++) {
         // }
         ready = true;
-        console.log('init done');
+        // console.log('init done');
     }
 
     function get_source(part, value) {
-        console.log(part);
-        console.log(value);
+        // console.log(part);
+        // console.log(value);
         return source_mapping[part][part + value];
+    }
+
+    function render(_characters, _bullets) {
+        var current_ball = {};
+        for (var char in _characters) {
+            char_instance[char].x = _characters[char].x;
+            char_instance[char].y = _characters[char].y;
+            rotate(char_instance[char], _characters[char]);
+            char_instance[char].children[6].width = 48 * (_characters[char].hp / 100);
+            if (_characters[char].hp <= 0) {
+                char_instance[char].children[2].visible = true;
+            } else {
+                char_instance[char].children[2].visible = false;
+            }
+            // TODO: fix hit
+            // if (_characters[char].hit && !char_instance[char].ani_timer) {
+            //     console.log(_characters[char].char + ' was hit');
+            //     var timer = char_instance[char].ani_timer;
+            //     var sprite = char_instance[char];
+            //     char_instance[char].ani_timer = setInterval(function() {
+            //         if (char_instance[char].children[0].alpha >= 1) {
+            //             char_instance[char].hit_offset = -0.05;
+            //         } else if (char_instance[char].children[0].alpha <= 0.1) {
+            //             char_instance[char].hit_offset = 0.05;
+            //         }
+            //         char_instance[char].children[0].alpha += char_instance[char].hit_offset;
+            //         char_instance[char].children[1].alpha += char_instance[char].hit_offset;
+            //     }, 1000 / 20);
+            //     console.log(char_instance[char].ani_timer);
+
+            //     set_recover(timer, sprite, _characters[char].char);
+                // setTimeout(function() {
+                //     console.log('recover' + _characters[char].char);
+                //     console.log(timer);
+                //     clearInterval(timer);
+                //     console.log(timer);
+                //     console.log(sprite);
+                //     console.log(sprite.children[0]);
+                //     sprite.children[0].alpha = 1;
+                //     sprite.children[1].alpha = 1;
+                //     sprite.hit_offset = -0.05;
+                // }, 1000);
+            // }
+        }
+        for (var key in ball_instance) {
+            current_ball[key] = key;
+        }
+        for (var i = 0; i < _bullets.length; i++) {
+            if (ball_instance[_bullets[i].id]) {
+                ball_instance[_bullets[i].id].x = _bullets[i].x - 5;
+                // console.log(_bullets[i].id);
+                // console.log('delete ' + current_ball[_bullets[i].id]);
+                delete current_ball[_bullets[i].id];
+            } else {
+                generate_ball(_bullets[i]);
+            }
+        }
+        for (var key in current_ball) {
+            engine.stage.removeChild(ball_instance[key]);
+        }
+    }
+
+    // function set_recover(timer, container, name) {
+    //     var _timer = timer
+    //     setTimeout(function() {
+    //         console.log('recover ' + name);
+    //         console.log(_timer);
+    //         clearInterval(_timer);
+    //         console.log(_timer);
+    //         console.log(container);
+    //         console.log(container.children[0]);
+    //         container.children[0].alpha = 1;
+    //         container.children[1].alpha = 1;
+    //         container.hit_offset = -0.05;
+    //     }, 1000);
+    // }
+
+    function rotate(ref, data_obj) {
+        var angle = 0;
+        if (data_obj.up) {
+            if (data_obj.left) {
+                angle = -45;
+            } else if (data_obj.right) {
+                angle = 45;
+            } else {
+                angle = 0;
+            }
+        } else if (data_obj.down) {
+            if (data_obj.left) {
+                angle = 225;
+            } else if (data_obj.right) {
+                angle = 135;
+            } else {
+                angle = 180;
+            }
+        } else {
+            if (data_obj.left) {
+                angle = 270;
+            } else if (data_obj.right) {
+                angle = 90;
+            }
+        }
+        // console.log(ref);
+        ref.children[0].rotation = angle * (Math.PI / 180);
+        ref.children[1].rotation = (data_obj.cannon_angle + 90) * (Math.PI / 180);
+        // console.log(data_obj.char);
+        // console.log(data_obj.angle);
+    }
+
+    function generate_ball(obj) {
+        var ball = get_source('bullet', obj.camp);
+        var assets = PIXI.loader.resources;
+        ball_instance[obj.id] = new PIXI.Sprite(assets[ball].texture);
+        ball_instance[obj.id].width = 10;
+        ball_instance[obj.id].height = 10;
+        ball_instance[obj.id].x = obj.x - 5;
+        ball_instance[obj.id].y = obj.y - 5;
+        engine.stage.addChild(ball_instance[obj.id]);
+    }
+
+    function clean() {
+        console.warn('=== clean ===');
+        for (var char in char_instance) {
+            for (var content in char_instance[char].children) {
+                char_instance[char].removeChild(char_instance[char].children[content]);
+            }
+            engine.stage.removeChild(char_instance[char]);
+        }
+        for (var ball in ball_instance) {
+            engine.stage.removeChild(ball_instance[ball]);
+        }
+        ready = false;
+
+    }
+
+    function loadProgressHandler(obj) {
+
     }
 
     function is_ready() {
         return ready;
     }
 
-    function render(_characters, _bullets) {
-        for (var char in _characters) {
-            char_instance[char].x = _characters[char].x;
-            char_instance[char].y = _characters[char].y;
-        }
+    function is_loaded() {
+        return loaded;
     }
 
-    function clean() {
-
-    }
-
-    function loadProgressHandler(obj) {
-    }
     return {
         init: init,
         clean: clean,
         render: render,
+        is_loaded: is_loaded,
         is_ready: is_ready
     }
 
