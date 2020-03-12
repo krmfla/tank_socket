@@ -172,12 +172,16 @@ var app = new Vue({
                 if (app.engine.is_loaded()) {
                     if (app.engine.is_ready()) {
                         var offset;
-                        if (window.innerWidth > 801 || !this.player || this.battle_set.result || !this.characters[this.player]) {
+                        console.log(window.innerWidth);
+                        console.log(app.player);
+                        console.log(app.battle_set.result);
+                        console.log(app.characters[app.player]);
+                        if (window.innerWidth > 801 || !app.player || app.battle_set.result || !app.characters[app.player]) {
                             offset = null;
                         } else {
                             var scale = 1.5;
-                            var x = 400 - this.characters[this.player].x * scale;
-                            var y = 300 - this.characters[this.player].y * scale;
+                            var x = 400 - app.characters[app.player].x * scale - (50 * scale / 2);
+                            var y = 300 - app.characters[app.player].y * scale - (50 * scale / 2);
                             offset = {
                                 scale: scale,
                                 x : x,
@@ -444,7 +448,7 @@ function View_Engine() {
         width: 800,
         height: 600,
         antialias: true,
-        backgroundColor: 0xDDDDDD,
+        backgroundColor: 0x333333,
         resolution: 1
     });
     var main = new PIXI.Container();
@@ -597,9 +601,9 @@ function View_Engine() {
         console.log(_bullets);
         console.log(offset_obj);
         if (offset_obj) {
+            main.position.set(offset_obj.x, offset_obj.y);
             main.scale.x = offset_obj.scale;
             main.scale.y = offset_obj.scale;
-            main.position.set(offset_obj.x, offset_obj.y);
         } else {
             main.scale.x = 1;
             main.scale.y = 1;
@@ -616,7 +620,7 @@ function View_Engine() {
                 char_instance[char].children[2].visible = true;
             } else {
                 char_instance[char].children[2].visible = false;
-            }
+            } 
             // TODO: fix hit
             // if (_characters[char].hit && !char_instance[char].ani_timer) {
             //     console.log(_characters[char].char + ' was hit');
@@ -662,7 +666,7 @@ function View_Engine() {
             }
         }
         for (var key in current_ball) {
-            engine.stage.removeChild(ball_instance[key]);
+            main.removeChild(ball_instance[key]);
         }
     }
 
@@ -721,7 +725,7 @@ function View_Engine() {
         ball_instance[obj.id].height = 10;
         ball_instance[obj.id].x = obj.x - 5;
         ball_instance[obj.id].y = obj.y - 5;
-        engine.stage.addChild(ball_instance[obj.id]);
+        main.addChild(ball_instance[obj.id]);
     }
 
     function clean() {
@@ -730,10 +734,10 @@ function View_Engine() {
             for (var content in char_instance[char].children) {
                 char_instance[char].removeChild(char_instance[char].children[content]);
             }
-            engine.stage.removeChild(char_instance[char]);
+            main.removeChild(char_instance[char]);
         }
         for (var ball in ball_instance) {
-            engine.stage.removeChild(ball_instance[ball]);
+            main.removeChild(ball_instance[ball]);
         }
         ready = false;
 
