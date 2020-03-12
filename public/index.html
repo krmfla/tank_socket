@@ -20,7 +20,7 @@
     
 </head>
 
-<body style="opacity:0.1">
+<body style="opacity:1">
     <div class='preload'>
         <img src='images/boom.gif' />
         <img src='images/ground1.png' />
@@ -159,6 +159,7 @@
         </div>
         <!-- visiter -->
         <div v-if='game_set.phase=="battle" && !player' class='visiter'>觀戰中</div>
+        <!-- new view -->
         <div id='main_wrapper' class='main_wrapper' v-show='game_set.phase=="battle"'>
             <div id='main_view' class='main' :style='{transform: camara}'></div>
             <div v-if='battle_set.result' class='result'>

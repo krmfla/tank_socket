@@ -171,7 +171,20 @@ var app = new Vue({
                 }
                 if (app.engine.is_loaded()) {
                     if (app.engine.is_ready()) {
-                        app.engine.render(obj.characters, obj.bullets);
+                        var offset;
+                        if (window.innerWidth > 801 || !this.player || this.battle_set.result || !this.characters[this.player]) {
+                            offset = null;
+                        } else {
+                            var scale = 1.5;
+                            var x = 400 - this.characters[this.player].x * scale;
+                            var y = 300 - this.characters[this.player].y * scale;
+                            offset = {
+                                scale: scale,
+                                x : x,
+                                y : y
+                            }
+                        }
+                        app.engine.render(obj.characters, obj.bullets, offset);
                     } else {
                         app.engine.init(obj.characters, obj.bullets, obj.battle_set);
                     }       
@@ -397,30 +410,10 @@ var app = new Vue({
 
 function View_Engine() {
     var wrapper;
-    var main;
     var loaded = false;
     var ready = false;
     var char_instance = {};
     var ball_instance = {};
-    // var characters = {
-    //     bot: {
-    //         body: 1,
-    //         cannon: 1,
-    //         camp: 1
-    //     }
-    // };
-    // var bullets = [{
-    //     camp: 1,
-    //     x: 1,
-    //     y: 1
-    // }];
-    var engine = new PIXI.Application({
-        width: 800,
-        height: 600,
-        antialias: true,
-        backgroundColor: 0xDDDDDD,
-        resolution: 1
-    });
     var source_mapping = {
         body: {
             body1: "images/tank_1.svg",
@@ -446,6 +439,16 @@ function View_Engine() {
             ground5: "images/ground5.png"
         }
     }
+    var engine = new PIXI.Application({
+        width: 800,
+        height: 600,
+        antialias: true,
+        backgroundColor: 0xDDDDDD,
+        resolution: 1
+    });
+    var main = new PIXI.Container();
+    main.position.set(0, 0);
+    engine.stage.addChild(main);
 
     PIXI.loader.add([
         "images/tank_1.svg",
@@ -490,8 +493,7 @@ function View_Engine() {
 
         ground_tiling.x = 0;
         ground_tiling.y = 0;
-        engine.stage.addChild(ground_tiling);
-
+        main.addChild(ground_tiling);
 
         for (var char in _characters) {
             // console.log(char);
@@ -503,7 +505,7 @@ function View_Engine() {
             var body = new PIXI.Sprite(assets[body_src].texture);
             var cannon = new PIXI.Sprite(assets[cannon_src].texture);
             var boom = new PIXI.Sprite(assets['images/boom2.png'].texture);
-            // TODO: add hp container
+            var hp_container = new PIXI.Container();
             var hp_wrapper = new PIXI.Graphics();
             var hp_bar = new PIXI.Graphics();
             var style = new PIXI.TextStyle({
@@ -511,8 +513,8 @@ function View_Engine() {
                 fontSize: 10,
                 fill: _char.camp == 1 ? '#03a9f4' : '#f44336',
                 fontWeight: 'bold',
-                stroke: '#4a1850',
-                strokeThickness: 2,
+                stroke: '#000000',
+                strokeThickness: 4,
             });
             var name = new PIXI.Text(_char.name, style);
 
@@ -524,7 +526,7 @@ function View_Engine() {
 
             char_instance[char].hit_offset = -0.05;
 
-            engine.stage.addChild(char_instance[char]);
+            main.addChild(char_instance[char]);
 
             frame.lineStyle(1, 0xFF0000, 1);
             frame.drawRect(0,-10,50,70);
@@ -555,11 +557,13 @@ function View_Engine() {
             name.y = -25;
             name.anchor.x = 0.5;
             name.anchor.y = 0.5;
-            hp_wrapper.beginFill(0xFFFFFF);
-            hp_wrapper.drawRect(-25,25,50,4);
+            hp_container.position.set(-25, 25);
+
+            hp_wrapper.beginFill(0x000000);
+            hp_wrapper.drawRect(0,0,50,4);
             hp_wrapper.endFill();
             hp_bar.beginFill(0xFF0000);
-            hp_bar.drawRect(-25,26,48,10);
+            hp_bar.drawRect(1,1,48,2);
             hp_bar.endFill();
  
             char_instance[char].addChild(body);
@@ -567,10 +571,13 @@ function View_Engine() {
             char_instance[char].addChild(boom);
             char_instance[char].addChild(frame);
             char_instance[char].addChild(name);
-            char_instance[char].addChild(hp_wrapper);
-            char_instance[char].addChild(hp_bar);
+            char_instance[char].addChild(hp_container);
+            hp_container.addChild(hp_wrapper);
+            hp_container.addChild(hp_bar);
+            hp_container.hp_bar = hp_bar;
             // console.log(char_instance[char]);
         }
+        console.log(main);
 
         // for (var i = 0; i < bullets.length; i++) {
         // }
@@ -584,13 +591,22 @@ function View_Engine() {
         return source_mapping[part][part + value];
     }
 
-    function render(_characters, _bullets) {
+    function render(_characters, _bullets, offset_obj) {
+        if (offset_obj) {
+            main.scale.x = offset_obj.scale;
+            main.scale.y = offset_obj.scale;
+            main.position.set(offset_obj.x, offset_obj.y);
+        } else {
+            main.scale.x = 1;
+            main.scale.y = 1;
+            main.position.set(0,0);
+        }
         var current_ball = {};
         for (var char in _characters) {
             char_instance[char].x = _characters[char].x;
             char_instance[char].y = _characters[char].y;
             rotate(char_instance[char], _characters[char]);
-            char_instance[char].children[6].width = 48 * (_characters[char].hp / 100);
+            char_instance[char].children[5].hp_bar.width = 48 * (_characters[char].hp / 100);
             if (_characters[char].hp <= 0) {
                 char_instance[char].children[2].visible = true;
             } else {
@@ -632,6 +648,7 @@ function View_Engine() {
         for (var i = 0; i < _bullets.length; i++) {
             if (ball_instance[_bullets[i].id]) {
                 ball_instance[_bullets[i].id].x = _bullets[i].x - 5;
+                ball_instance[_bullets[i].id].y = _bullets[i].y - 5;
                 // console.log(_bullets[i].id);
                 // console.log('delete ' + current_ball[_bullets[i].id]);
                 delete current_ball[_bullets[i].id];
@@ -740,8 +757,8 @@ function View_Engine() {
 }
 
 //---- controller
-// bug: multi join
-// scale tank size
+//---- bug: multi join
+//---- scale tank size
 //aim target when reburn
 // fix controller scale issue
 // fix key down keep shoot
