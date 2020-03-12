@@ -184,6 +184,7 @@ var app = new Vue({
                                 y : y
                             }
                         }
+                        console.log(offset);
                         app.engine.render(obj.characters, obj.bullets, offset);
                     } else {
                         app.engine.init(obj.characters, obj.bullets, obj.battle_set);
@@ -592,6 +593,9 @@ function View_Engine() {
     }
 
     function render(_characters, _bullets, offset_obj) {
+        console.log(_characters);
+        console.log(_bullets);
+        console.log(offset_obj);
         if (offset_obj) {
             main.scale.x = offset_obj.scale;
             main.scale.y = offset_obj.scale;
@@ -603,6 +607,7 @@ function View_Engine() {
         }
         var current_ball = {};
         for (var char in _characters) {
+            console.log(char);
             char_instance[char].x = _characters[char].x;
             char_instance[char].y = _characters[char].y;
             rotate(char_instance[char], _characters[char]);
