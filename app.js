@@ -27,11 +27,10 @@ http.listen(PORT, () => {
 
 io.on('connection', function(socket) {
     console.log('connect');
-    // login
+    // register
     socket.on('register', function(obj) {
         strategy.register(obj);
         io.emit('dispatch_series', strategy.get_series(obj.token));
-        // io.emit('change_phase', 'strategy');
     });
 
     socket.on('get_phase', function() {
@@ -44,13 +43,6 @@ io.on('connection', function(socket) {
     });
 
     // battle
-    // socket.on('join', function() {
-        // var character = battle.join();
-        // battle.generate(character);
-        // battle.npc_detect();
-    //     io.emit('join', character);
-    //     io.emit('render', battle.render());
-    // });
     socket.on('get_render', function() {
         io.emit('render', battle.render());
     });
@@ -59,8 +51,9 @@ io.on('connection', function(socket) {
     });
 })
 
+// TODO: label
 /* === Strategy Set === */
-// TODO:
+
 function StrategySet() {
     var strategy_counter = 20;
     var camps = {
@@ -173,7 +166,6 @@ function StrategySet() {
     }
 
     function join(obj) {
-        // var exist = false;
         var camp = obj.camp === 1 ? 'allience' : 'axis';
         for (var i = 0; i < battle_group[camp].length; i++) {
             if(battle_group[camp][i].name === obj.name) {
@@ -183,7 +175,6 @@ function StrategySet() {
         if (battle_group[camp][obj.index] && !battle_group[camp][obj.index].name) {
             battle_group[camp][obj.index].name = obj.name;
             battle_group[camp][obj.index].series = obj.series;
-            // console.log(battle_group[camp][obj.index].series);
         }
     }
     
@@ -273,7 +264,7 @@ function StrategySet() {
     }
 }
 
-// TODO: 
+// TODO: label
 /* === Battle Set === */
 
 function BattleSet() {
@@ -281,8 +272,6 @@ function BattleSet() {
     var characters = {};
     var bullets = [];
     var bullet_index = 0;
-    // var player = 0;
-    // var npc_set = 0;
     var x_max = 770;
     var y_max = 570;
     var cd_wait = 12;
@@ -309,7 +298,6 @@ function BattleSet() {
             if (groups.allience[i].name) {
                 var char = 'allience' + (i + 1);
                 characters[char] = {};
-                // characters[char] = char;
                 characters[char].series = groups.allience[i].series;
                 characters[char].camp = 1;
                 characters[char].name = groups.allience[i].name;
@@ -322,7 +310,6 @@ function BattleSet() {
             if (groups.axis[i].name) {
                 var char = 'axis' + (i + 1);
                 characters[char] = {};
-                // characters[char] = char;
                 characters[char].series = groups.axis[i].series;
                 characters[char].camp = 2;
                 characters[char].name = groups.axis[i].name;
@@ -331,7 +318,6 @@ function BattleSet() {
                 npc_generate('axisbot' + (i+1), 2);
             }
         }
-        // console.log(characters);
         io.emit('dispatch_player', characters)
 
         render_timer = setInterval(function() {
@@ -348,18 +334,9 @@ function BattleSet() {
         }, 1000);
     };
 
-    // function join(io) {
-    //     var index = player += 1;
-    //     var char = 'p' + index;
-    //     characters[char] = {};
-    //     return char;
-    // }
-
     function generate(char) {
-        // characters[char].color = get_color();
         characters[char].color = characters[char].camp === 1 ? '#03a9f4' : '#f44336';
         characters[char].char = char;
-        // characters[char].x = Math.floor(Math.random() * x_max) + 20;
         if (characters[char].camp === 1) {
             characters[char].x = 40;
         } else {
@@ -391,17 +368,6 @@ function BattleSet() {
         characters[npc].name = camp === 1 ? '同盟軍' : '軸心軍';
         generate(npc);
         npc_action(npc);
-        /*
-        var index = 1;
-        while (npc_set > 0) {
-            var npc = 'npc' + index;
-            characters[npc] = {};
-            generate(npc);
-            npc_action(npc);
-            index += 1;
-            npc_set -= 1;
-        }
-        */
     }
 
     function npc_action(npc) {
@@ -459,7 +425,6 @@ function BattleSet() {
         obj.offset_y = null;
         obj.x = char.x;
         obj.y = char.y;
-        // obj.color = char.color;
         obj.char = char.char;
         obj.camp = char.camp;
         char.ammo -= 1;
@@ -491,26 +456,11 @@ function BattleSet() {
         obj.x += obj.offset_x * 2;
         obj.y += obj.offset_y * 2;
         bullets.push(obj);
-        // console.log('shot: ' + char.shot);
         if (char.shot) {
             char.fire = false;
             char.shot = false;
         }
     }
-
-    // function get_color() {
-    //     var color = [null, null, null];
-    //     var shuffle = [0, 1, 2];
-    //     var higher_index = Math.floor(Math.random() * 3);
-    //     var lower_index = Math.floor(Math.random() * 2);
-    //     var middle = Math.floor(Math.random() * 200) + 20;
-    //     color[shuffle[higher_index]] = 220;
-    //     shuffle.splice(higher_index, 1);
-    //     color[shuffle[lower_index]] = 20;
-    //     shuffle.splice(lower_index, 1);
-    //     color[shuffle[0]] = middle;
-    //     return 'rgb(' + color.toString() + ')';
-    // }
 
     function caculator() {
         if (battle_set.counter <= 0) {
@@ -610,8 +560,6 @@ function BattleSet() {
             if (_char.hp === 100) {
                 return;
             }
-            // console.log('reset_char: ' + _char.char);
-            // _char.x = Math.floor(Math.random() * x_max) + 20;
             if (_char.camp === 1) {
                 _char.x = 40;
             } else {
@@ -627,7 +575,6 @@ function BattleSet() {
 
     function result() {
         clearInterval(counter_timer);
-        // clearInterval(render_timer);
         if (strategy_set.target.own === 1) {
             if (battle_set.allience_score >= battle_set.axis_score) {
                 battle_set.result = '同盟軍堅守' + strategy_set.target.name + '地區';
@@ -676,8 +623,6 @@ function BattleSet() {
         characters = {};
         bullets = [];
         bullet_index = 0;
-        // player = 0;
-        // npc_set = 9;
         for (var i = 0; i < npc_timer.length; i++) {
             clearInterval(npc_timer[i]);
         }
@@ -697,9 +642,6 @@ function BattleSet() {
 
     return {
         init: init,
-        // join: join,
-        // generate: generate,
-        // npc_detect: npc_detect,
         render: render,
         action: action,
         restart: restart

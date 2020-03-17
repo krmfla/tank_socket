@@ -63,22 +63,11 @@ var app = new Vue({
             }
         },
         camara: function() {
-            // console.log(this.characters[this.player]);
-            // console.log(this.characters[this.player]);
-            // console.warn('camara');
-            // console.log(window.innerWidth);
-            // console.log(this.player);
-            // console.log(this.battle_set.result);
-            // console.log(this.characters[this.player]);
             if (window.innerWidth > 801 || !this.player || this.battle_set.result || !this.characters[this.player]) {
                 return "none";
             }
             var x = 400 - this.characters[this.player].x;
             var y = 300 - this.characters[this.player].y;
-            // var scale_x = ((400 - Math.abs(x)) / 400) + 1;
-            // var scale_y = ((300 - Math.abs(y)) / 300) + 1;
-            // console.log(scale_x);
-            // return "scale(" + scale_x + ","  + scale_x + ") translate(" + x + "px, " + y + "px)";
             return "scale(1.5, 1.5) translate(" + x + "px, " + y + "px)";
         }
     },
@@ -91,7 +80,6 @@ var app = new Vue({
                 return;
             }
             this.token = GetToken(12);
-            // console.log(this.token);
             this.socket_binding();
             socket.emit('register', {
                 name: this.name,
@@ -124,7 +112,6 @@ var app = new Vue({
             });
             
             socket.on('strategy_render', function(obj) {
-                // console.log(obj);
                 if (app.game_set.phase !== 'strategy') {
                     return;
                 }
@@ -152,8 +139,6 @@ var app = new Vue({
             });
             
             socket.on('battle_render', function(obj) {
-                // TODO: fix render logic
-                // console.log(obj);
                 var _time = new Date();
                 if (app.prev_request) {
                     app.latency = _time.getTime() - app.prev_request;
@@ -188,7 +173,6 @@ var app = new Vue({
                                 y : y
                             }
                         }
-                        console.log(offset);
                         app.engine.render(obj.characters, obj.bullets, offset);
                     } else {
                         app.engine.init(obj.characters, obj.bullets, obj.battle_set);
@@ -294,11 +278,9 @@ var app = new Vue({
             }
         },
         move: function(code) {
-            // console.log(this.player);
             if (!this.player) {
                 return;
             }
-            // console.log(code);
             var vm = this;
             var direction;
             var trigger;
@@ -401,14 +383,6 @@ var app = new Vue({
     },
     mounted: function() {
         var vm = this;
-        // init(vm);
-        // this.event_binding();
-        // setTimeout(function() {
-        //     vm.isBuffer = false;
-        // }, 5000);
-        // this.name = 'test';
-        // this.camp = 1;
-        // this.handle_start();
         this.engine = new View_Engine();
     }
 });
@@ -486,11 +460,9 @@ function View_Engine() {
         char_instance = {};
         ball_instance = {};
         var characters = _characters;
-        // console.log(characters);
         var assets = PIXI.loader.resources;
         var ground_texture = get_source('ground', _battle_setp.ground);
         var ground = PIXI.Texture.fromImage(ground_texture);
-        // console.log(ground);
         var ground_tiling = new PIXI.TilingSprite(ground, 800, 600);
         
         wrapper = document.querySelector('#main_view');
@@ -501,10 +473,7 @@ function View_Engine() {
         main.addChild(ground_tiling);
 
         for (var char in _characters) {
-            // console.log(char);
-            // console.log(characters[char]);
             var _char = characters[char];
-            // console.log(_char);
             var body_src = get_source('body', _char.body);
             var cannon_src = get_source('cannon', _char.cannon);
             var body = new PIXI.Sprite(assets[body_src].texture);
@@ -580,19 +549,11 @@ function View_Engine() {
             hp_container.addChild(hp_wrapper);
             hp_container.addChild(hp_bar);
             hp_container.hp_bar = hp_bar;
-            // console.log(char_instance[char]);
         }
-        console.log(main);
-
-        // for (var i = 0; i < bullets.length; i++) {
-        // }
         ready = true;
-        // console.log('init done');
     }
 
     function get_source(part, value) {
-        // console.log(part);
-        // console.log(value);
         return source_mapping[part][part + value];
     }
 
@@ -658,8 +619,6 @@ function View_Engine() {
             if (ball_instance[_bullets[i].id]) {
                 ball_instance[_bullets[i].id].x = _bullets[i].x - 5;
                 ball_instance[_bullets[i].id].y = _bullets[i].y - 5;
-                // console.log(_bullets[i].id);
-                // console.log('delete ' + current_ball[_bullets[i].id]);
                 delete current_ball[_bullets[i].id];
             } else {
                 generate_ball(_bullets[i]);
@@ -710,11 +669,8 @@ function View_Engine() {
                 angle = 90;
             }
         }
-        // console.log(ref);
         ref.children[0].rotation = angle * (Math.PI / 180);
         ref.children[1].rotation = (data_obj.cannon_angle + 90) * (Math.PI / 180);
-        // console.log(data_obj.char);
-        // console.log(data_obj.angle);
     }
 
     function generate_ball(obj) {
@@ -729,7 +685,6 @@ function View_Engine() {
     }
 
     function clean() {
-        console.warn('=== clean ===');
         for (var char in char_instance) {
             for (var content in char_instance[char].children) {
                 char_instance[char].removeChild(char_instance[char].children[content]);
@@ -762,7 +717,6 @@ function View_Engine() {
         is_loaded: is_loaded,
         is_ready: is_ready
     }
-
 }
 
 //---- controller
