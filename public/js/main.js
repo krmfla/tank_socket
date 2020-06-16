@@ -107,7 +107,7 @@ var app = new Vue({
             });
             
             socket.on('change_phase', function(text) {
-                console.log(text);
+                // console.log(text);
                 app.game_set.phase = text;
             });
             
@@ -157,10 +157,10 @@ var app = new Vue({
                 if (app.engine.is_loaded()) {
                     if (app.engine.is_ready()) {
                         var offset;
-                        console.log(window.innerWidth);
-                        console.log(app.player);
-                        console.log(app.battle_set.result);
-                        console.log(app.characters[app.player]);
+                        // console.log(window.innerWidth);
+                        // console.log(app.player);
+                        // console.log(app.battle_set.result);
+                        // console.log(app.characters[app.player]);
                         if (window.innerWidth > 801 || !app.player || app.battle_set.result || !app.characters[app.player]) {
                             offset = null;
                         } else {
@@ -416,7 +416,16 @@ function View_Engine() {
             ground3: "images/ground3.png",
             ground4: "images/ground4.png",
             ground5: "images/ground5.png"
-        }
+        },
+        boom: [
+            "images/boom1.png",
+            "images/boom2.png",
+            "images/boom3.png",
+            "images/boom4.png",
+            "images/boom5.png",
+            "images/boom6.png",
+            "images/boom7.png"
+        ]
     }
     var engine = new PIXI.Application({
         width: 800,
@@ -445,12 +454,12 @@ function View_Engine() {
         "images/ground5.png",
         "images/bullet_r.svg",
         "images/bullet_b.svg",
-        "images/boom2.png",
+        // "images/boom2.png",
         ])
         .on("progress", loadProgressHandler)
         .load(function() {
             loaded = true;
-        });
+    });
 
     function init(_characters, _bullets, _battle_setp) {
         console.warn('=== init ===');
@@ -478,7 +487,9 @@ function View_Engine() {
             var cannon_src = get_source('cannon', _char.cannon);
             var body = new PIXI.Sprite(assets[body_src].texture);
             var cannon = new PIXI.Sprite(assets[cannon_src].texture);
-            var boom = new PIXI.Sprite(assets['images/boom2.png'].texture);
+            // var boom = new PIXI.Sprite(assets['images/boom2.png'].texture);
+            var boomArray = [];
+            var boom; 
             var hp_container = new PIXI.Container();
             var hp_wrapper = new PIXI.Graphics();
             var hp_bar = new PIXI.Graphics();
@@ -519,6 +530,13 @@ function View_Engine() {
             cannon.anchor.x = 0.5;
             cannon.anchor.y = 0.5;
             cannon.alpha = 1;
+
+            for (var i = 0; i < source_mapping.boom.length; i++) {
+                var texture = PIXI.Texture.from(source_mapping.boom[i]);
+                boomArray.push(texture);
+            }
+            boom = new PIXI.AnimatedSprite(boomArray);
+
             boom.width = 50;
             boom.height = 50;
             boom.x = 0;
@@ -526,6 +544,7 @@ function View_Engine() {
             boom.anchor.x = 0.5;
             boom.anchor.y = 0.5;
             boom.visible = false;
+            boom.animationSpeed = .25;
             
             name.x = 0;
             name.y = -25;
@@ -558,9 +577,9 @@ function View_Engine() {
     }
 
     function render(_characters, _bullets, offset_obj) {
-        console.log(_characters);
-        console.log(_bullets);
-        console.log(offset_obj);
+        // console.log(_characters);
+        // console.log(_bullets);
+        // console.log(offset_obj);
         if (offset_obj) {
             main.position.set(offset_obj.x, offset_obj.y);
             main.scale.x = offset_obj.scale;
@@ -572,15 +591,17 @@ function View_Engine() {
         }
         var current_ball = {};
         for (var char in _characters) {
-            console.log(char);
+            // console.log(char);
             char_instance[char].x = _characters[char].x;
             char_instance[char].y = _characters[char].y;
             rotate(char_instance[char], _characters[char]);
             char_instance[char].children[5].hp_bar.width = 48 * (_characters[char].hp / 100);
             if (_characters[char].hp <= 0) {
                 char_instance[char].children[2].visible = true;
+                char_instance[char].children[2].play();
             } else {
                 char_instance[char].children[2].visible = false;
+                char_instance[char].children[2].stop();
             } 
             // TODO: fix hit
             // if (_characters[char].hit && !char_instance[char].ani_timer) {
