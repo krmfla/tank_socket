@@ -3,7 +3,7 @@ module.exports = BattleSet;
 function BattleSet(socket) {
     var io = socket;
     var strategy;
-    var game_counter = 20;
+    var game_counter = 60;
     var result_hold = 8000;
     var characters = {};
     var bullets = [];

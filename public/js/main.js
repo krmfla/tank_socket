@@ -513,8 +513,9 @@ function View_Engine() {
 
             main.addChild(char_instance[char]);
 
-            frame.lineStyle(1, 0xFF0000, 1);
-            frame.drawRect(0,-10,50,70);
+            // tank wrapper
+            // frame.lineStyle(1, 0xFF0000, 1);
+            // frame.drawRect(0,-10,50,70);
             // frame.visible = false;
             body.width = 50;
             body.height = 50;
