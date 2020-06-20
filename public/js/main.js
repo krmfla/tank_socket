@@ -510,9 +510,9 @@ function View_Engine() {
                 fontFamily: 'sans-serif',
                 fontSize: 10,
                 fill: _char.camp == 1 ? '#03a9f4' : '#f44336',
-                fontWeight: 'bold',
-                stroke: '#4a1850',
-                strokeThickness: 2,
+                // fontWeight: 'bold',
+                stroke: '#000000',
+                strokeThickness: 4,
             });
             var name = new PIXI.Text(_char.name, style);
 
@@ -528,7 +528,7 @@ function View_Engine() {
 
             frame.lineStyle(1, 0xFF0000, 1);
             frame.drawRect(0,-10,50,70);
-            frame.visible = false;
+            // frame.visible = false;
             body.width = 50;
             body.height = 50;
             body.x = 0;
