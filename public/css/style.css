@@ -33,21 +33,34 @@ body {
 
 /* === login === */
 .login {
-    width: 600px;
-    margin: 50px auto 0;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 0;
     border: 1px solid #AAA;
     border-radius: 10px;
-    padding: 20px;
+    /* padding: 20px; */
     box-sizing: border-box;
     text-align: center;
     font-size: 20px;
+    position: relative;
 }
 
-.login input {
+.login_input {
     margin: 0 auto;
     padding: 10px;
-    border-radius: 5px;
-    font-size: 20px;
+    font-size: 26px;
+    position: absolute;
+    /* border: 1px solid red; */
+    top: 119px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    letter-spacing: 1px;
+    border: none;
+}
+
+.login_input:focus {
+    outline: none;
 }
 
 .select_camp {
@@ -399,6 +412,7 @@ body {
     float: right;
 }
 
+/* ====== TODO: tank  ====== */
 
 .tank {
     width: 50px;
@@ -698,11 +712,12 @@ body {
                                     supported by Chrome, Opera and Firefox */
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 750px) {
     .controller {
         display: block;
     }
     .login {
+        max-width: 750px;
         font-size: 26px;
     }
     .login input {
@@ -718,7 +733,7 @@ body {
     }
 }
 
-@media screen and (min-width: 801px) {
+@media screen and (min-width: 751px) {
     .controller {
         display: none;
     }
@@ -784,29 +799,6 @@ body {
     100% {
         transform: translateY(0);
     }
-}
-
-@keyframes boom {
-    /* 0% {
-        z-index: 1;
-        opacity: 1;
-        right: 0;
-        bottom: 0;
-    }
-    25% {
-        z-index: 1;
-        opacity: 1;
-    }
-    26% {
-        display: none;
-        z-index: -1;
-        opacity: 0 !important;
-    }
-    100% {
-        display: none;
-        z-index: -1;
-        opacity: 0 !important;
-    } */
 }
 
 .main.buffer {

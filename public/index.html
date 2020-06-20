@@ -3,7 +3,7 @@
 
 <head>
     <title>Tank Duel</title>
-    <meta content="width=800, user-scalable=no" name="viewport" />
+    <meta content="width=750, user-scalable=no" name="viewport" />
     <!-- CSS -->
     <link href="css/style.css" rel="stylesheet">
     <!-- liberary -->
@@ -37,14 +37,29 @@
     <div id='app' class='wrapper'>
         <!-- login -->
         <div v-if='game_set.phase=="login"' class='login'>
-            <p>名字設定</p>
-            <input v-model='name' maxlength='6'/>
+            <img class='login_ui' src='images/login_ui.svg'>
+            <input class='login_input' v-model='name' maxlength='7'/>
+            
+            <div class='select_border select_border_alliance'>
+                <p class='select_alliance'>同盟國</p>
+                <img src='images/login_select.svg' />
+            </div>
+            <div class='select_border select_border_axis'>
+                <p class='select_axis'>軸心國</p>
+                <img src='images/login_select.svg' />
+            </div>
+
+            <button class='start_btn' @click='handle_start()'>
+                <img class='login_btn' src='images/login_btn.svg' />
+            </button>
+            <!-- <p>名字設定</p>
+            
             <p>選擇陣營:</p>
             <div class='select_camp'>
                 <div class='camp' :class='{active: camp == 1}' @click='handle_camp(1)'>同盟軍</div>
                 <div class='camp' :class='{active: camp == 2}' @click='handle_camp(2)'>軸心軍</div>
             </div>
-            <button class='start_btn' @click='handle_start()'>開始</button>
+            <button class='start_btn' @click='handle_start()'>開始</button> -->
         </div>
         <!-- strategy -->
         <div v-if='game_set.phase=="strategy"' class='strategy'>
