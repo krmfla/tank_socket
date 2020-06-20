@@ -63,22 +63,11 @@ var app = new Vue({
             }
         },
         camara: function() {
-            // console.log(this.characters[this.player]);
-            // console.log(this.characters[this.player]);
-            // console.warn('camara');
-            // console.log(window.innerWidth);
-            // console.log(this.player);
-            // console.log(this.battle_set.result);
-            // console.log(this.characters[this.player]);
             if (window.innerWidth > 801 || !this.player || this.battle_set.result || !this.characters[this.player]) {
                 return "none";
             }
             var x = 400 - this.characters[this.player].x;
             var y = 300 - this.characters[this.player].y;
-            // var scale_x = ((400 - Math.abs(x)) / 400) + 1;
-            // var scale_y = ((300 - Math.abs(y)) / 300) + 1;
-            // console.log(scale_x);
-            // return "scale(" + scale_x + ","  + scale_x + ") translate(" + x + "px, " + y + "px)";
             return "scale(1.5, 1.5) translate(" + x + "px, " + y + "px)";
         }
     },
@@ -91,7 +80,6 @@ var app = new Vue({
                 return;
             }
             this.token = GetToken(12);
-            // console.log(this.token);
             this.socket_binding();
             socket.emit('register', {
                 name: this.name,
@@ -119,12 +107,11 @@ var app = new Vue({
             });
             
             socket.on('change_phase', function(text) {
-                console.log(text);
+                // console.log(text);
                 app.game_set.phase = text;
             });
             
             socket.on('strategy_render', function(obj) {
-                // console.log(obj);
                 if (app.game_set.phase !== 'strategy') {
                     return;
                 }
@@ -152,8 +139,6 @@ var app = new Vue({
             });
             
             socket.on('battle_render', function(obj) {
-                // TODO: fix render logic
-                // console.log(obj);
                 var _time = new Date();
                 if (app.prev_request) {
                     app.latency = _time.getTime() - app.prev_request;
@@ -171,7 +156,24 @@ var app = new Vue({
                 }
                 if (app.engine.is_loaded()) {
                     if (app.engine.is_ready()) {
-                        app.engine.render(obj.characters, obj.bullets);
+                        var offset;
+                        // console.log(window.innerWidth);
+                        // console.log(app.player);
+                        // console.log(app.battle_set.result);
+                        // console.log(app.characters[app.player]);
+                        if (window.innerWidth > 801 || !app.player || app.battle_set.result || !app.characters[app.player]) {
+                            offset = null;
+                        } else {
+                            var scale = 1.5;
+                            var x = 400 - app.characters[app.player].x * scale - (50 * scale / 2);
+                            var y = 300 - app.characters[app.player].y * scale - (50 * scale / 2);
+                            offset = {
+                                scale: scale,
+                                x : x,
+                                y : y
+                            }
+                        }
+                        app.engine.render(obj.characters, obj.bullets, offset);
                     } else {
                         app.engine.init(obj.characters, obj.bullets, obj.battle_set);
                     }       
@@ -276,11 +278,9 @@ var app = new Vue({
             }
         },
         move: function(code) {
-            // console.log(this.player);
             if (!this.player) {
                 return;
             }
-            // console.log(code);
             var vm = this;
             var direction;
             var trigger;
@@ -383,44 +383,16 @@ var app = new Vue({
     },
     mounted: function() {
         var vm = this;
-        // init(vm);
-        // this.event_binding();
-        // setTimeout(function() {
-        //     vm.isBuffer = false;
-        // }, 5000);
-        // this.name = 'test';
-        // this.camp = 1;
-        // this.handle_start();
         this.engine = new View_Engine();
     }
 });
 
 function View_Engine() {
     var wrapper;
-    var main;
     var loaded = false;
     var ready = false;
     var char_instance = {};
     var ball_instance = {};
-    // var characters = {
-    //     bot: {
-    //         body: 1,
-    //         cannon: 1,
-    //         camp: 1
-    //     }
-    // };
-    // var bullets = [{
-    //     camp: 1,
-    //     x: 1,
-    //     y: 1
-    // }];
-    var engine = new PIXI.Application({
-        width: 800,
-        height: 600,
-        antialias: true,
-        backgroundColor: 0xDDDDDD,
-        resolution: 1
-    });
     var source_mapping = {
         body: {
             body1: "images/tank_1.svg",
@@ -444,8 +416,27 @@ function View_Engine() {
             ground3: "images/ground3.png",
             ground4: "images/ground4.png",
             ground5: "images/ground5.png"
-        }
+        },
+        boom: [
+            "images/boom1.png",
+            "images/boom2.png",
+            "images/boom3.png",
+            "images/boom4.png",
+            "images/boom5.png",
+            "images/boom6.png",
+            "images/boom7.png"
+        ]
     }
+    var engine = new PIXI.Application({
+        width: 800,
+        height: 600,
+        antialias: true,
+        backgroundColor: 0x333333,
+        resolution: 1
+    });
+    var main = new PIXI.Container();
+    main.position.set(0, 0);
+    engine.stage.addChild(main);
 
     PIXI.loader.add([
         "images/tank_1.svg",
@@ -463,12 +454,12 @@ function View_Engine() {
         "images/ground5.png",
         "images/bullet_r.svg",
         "images/bullet_b.svg",
-        "images/boom2.png",
+        // "images/boom2.png",
         ])
         .on("progress", loadProgressHandler)
         .load(function() {
             loaded = true;
-        });
+    });
 
     function init(_characters, _bullets, _battle_setp) {
         console.warn('=== init ===');
@@ -478,11 +469,9 @@ function View_Engine() {
         char_instance = {};
         ball_instance = {};
         var characters = _characters;
-        // console.log(characters);
         var assets = PIXI.loader.resources;
         var ground_texture = get_source('ground', _battle_setp.ground);
         var ground = PIXI.Texture.fromImage(ground_texture);
-        // console.log(ground);
         var ground_tiling = new PIXI.TilingSprite(ground, 800, 600);
         
         wrapper = document.querySelector('#main_view');
@@ -490,27 +479,25 @@ function View_Engine() {
 
         ground_tiling.x = 0;
         ground_tiling.y = 0;
-        engine.stage.addChild(ground_tiling);
-
+        main.addChild(ground_tiling);
 
         for (var char in _characters) {
-            // console.log(char);
-            // console.log(characters[char]);
             var _char = characters[char];
-            // console.log(_char);
             var body_src = get_source('body', _char.body);
             var cannon_src = get_source('cannon', _char.cannon);
             var body = new PIXI.Sprite(assets[body_src].texture);
             var cannon = new PIXI.Sprite(assets[cannon_src].texture);
-            var boom = new PIXI.Sprite(assets['images/boom2.png'].texture);
-            // TODO: add hp container
+            // var boom = new PIXI.Sprite(assets['images/boom2.png'].texture);
+            var boomArray = [];
+            var boom; 
+            var hp_container = new PIXI.Container();
             var hp_wrapper = new PIXI.Graphics();
             var hp_bar = new PIXI.Graphics();
             var style = new PIXI.TextStyle({
                 fontFamily: 'sans-serif',
                 fontSize: 10,
                 fill: _char.camp == 1 ? '#03a9f4' : '#f44336',
-                // fontWeight: 'bold',
+                fontWeight: 'bold',
                 stroke: '#000000',
                 strokeThickness: 4,
             });
@@ -524,7 +511,7 @@ function View_Engine() {
 
             char_instance[char].hit_offset = -0.05;
 
-            engine.stage.addChild(char_instance[char]);
+            main.addChild(char_instance[char]);
 
             frame.lineStyle(1, 0xFF0000, 1);
             frame.drawRect(0,-10,50,70);
@@ -543,6 +530,13 @@ function View_Engine() {
             cannon.anchor.x = 0.5;
             cannon.anchor.y = 0.5;
             cannon.alpha = 1;
+
+            for (var i = 0; i < source_mapping.boom.length; i++) {
+                var texture = PIXI.Texture.from(source_mapping.boom[i]);
+                boomArray.push(texture);
+            }
+            boom = new PIXI.AnimatedSprite(boomArray);
+
             boom.width = 50;
             boom.height = 50;
             boom.x = 0;
@@ -550,16 +544,19 @@ function View_Engine() {
             boom.anchor.x = 0.5;
             boom.anchor.y = 0.5;
             boom.visible = false;
+            boom.animationSpeed = .25;
             
             name.x = 0;
             name.y = -25;
             name.anchor.x = 0.5;
             name.anchor.y = 0.5;
-            hp_wrapper.beginFill(0xFFFFFF);
-            hp_wrapper.drawRect(-25,25,50,4);
+            hp_container.position.set(-25, 25);
+
+            hp_wrapper.beginFill(0x000000);
+            hp_wrapper.drawRect(0,0,50,4);
             hp_wrapper.endFill();
             hp_bar.beginFill(0xFF0000);
-            hp_bar.drawRect(-25,26,48,10);
+            hp_bar.drawRect(1,1,48,2);
             hp_bar.endFill();
  
             char_instance[char].addChild(body);
@@ -567,35 +564,45 @@ function View_Engine() {
             char_instance[char].addChild(boom);
             char_instance[char].addChild(frame);
             char_instance[char].addChild(name);
-            char_instance[char].addChild(hp_wrapper);
-            char_instance[char].addChild(hp_bar);
-            // console.log(char_instance[char]);
+            char_instance[char].addChild(hp_container);
+            hp_container.addChild(hp_wrapper);
+            hp_container.addChild(hp_bar);
+            hp_container.hp_bar = hp_bar;
         }
-
-        // for (var i = 0; i < bullets.length; i++) {
-        // }
         ready = true;
-        // console.log('init done');
     }
 
     function get_source(part, value) {
-        // console.log(part);
-        // console.log(value);
         return source_mapping[part][part + value];
     }
 
-    function render(_characters, _bullets) {
+    function render(_characters, _bullets, offset_obj) {
+        // console.log(_characters);
+        // console.log(_bullets);
+        // console.log(offset_obj);
+        if (offset_obj) {
+            main.position.set(offset_obj.x, offset_obj.y);
+            main.scale.x = offset_obj.scale;
+            main.scale.y = offset_obj.scale;
+        } else {
+            main.scale.x = 1;
+            main.scale.y = 1;
+            main.position.set(0,0);
+        }
         var current_ball = {};
         for (var char in _characters) {
+            // console.log(char);
             char_instance[char].x = _characters[char].x;
             char_instance[char].y = _characters[char].y;
             rotate(char_instance[char], _characters[char]);
-            char_instance[char].children[6].width = 48 * (_characters[char].hp / 100);
+            char_instance[char].children[5].hp_bar.width = 48 * (_characters[char].hp / 100);
             if (_characters[char].hp <= 0) {
                 char_instance[char].children[2].visible = true;
+                char_instance[char].children[2].play();
             } else {
                 char_instance[char].children[2].visible = false;
-            }
+                char_instance[char].children[2].stop();
+            } 
             // TODO: fix hit
             // if (_characters[char].hit && !char_instance[char].ani_timer) {
             //     console.log(_characters[char].char + ' was hit');
@@ -632,15 +639,14 @@ function View_Engine() {
         for (var i = 0; i < _bullets.length; i++) {
             if (ball_instance[_bullets[i].id]) {
                 ball_instance[_bullets[i].id].x = _bullets[i].x - 5;
-                // console.log(_bullets[i].id);
-                // console.log('delete ' + current_ball[_bullets[i].id]);
+                ball_instance[_bullets[i].id].y = _bullets[i].y - 5;
                 delete current_ball[_bullets[i].id];
             } else {
                 generate_ball(_bullets[i]);
             }
         }
         for (var key in current_ball) {
-            engine.stage.removeChild(ball_instance[key]);
+            main.removeChild(ball_instance[key]);
         }
     }
 
@@ -684,11 +690,8 @@ function View_Engine() {
                 angle = 90;
             }
         }
-        // console.log(ref);
         ref.children[0].rotation = angle * (Math.PI / 180);
         ref.children[1].rotation = (data_obj.cannon_angle + 90) * (Math.PI / 180);
-        // console.log(data_obj.char);
-        // console.log(data_obj.angle);
     }
 
     function generate_ball(obj) {
@@ -699,19 +702,18 @@ function View_Engine() {
         ball_instance[obj.id].height = 10;
         ball_instance[obj.id].x = obj.x - 5;
         ball_instance[obj.id].y = obj.y - 5;
-        engine.stage.addChild(ball_instance[obj.id]);
+        main.addChild(ball_instance[obj.id]);
     }
 
     function clean() {
-        console.warn('=== clean ===');
         for (var char in char_instance) {
             for (var content in char_instance[char].children) {
                 char_instance[char].removeChild(char_instance[char].children[content]);
             }
-            engine.stage.removeChild(char_instance[char]);
+            main.removeChild(char_instance[char]);
         }
         for (var ball in ball_instance) {
-            engine.stage.removeChild(ball_instance[ball]);
+            main.removeChild(ball_instance[ball]);
         }
         ready = false;
 
@@ -736,12 +738,11 @@ function View_Engine() {
         is_loaded: is_loaded,
         is_ready: is_ready
     }
-
 }
 
 //---- controller
-// bug: multi join
-// scale tank size
+//---- bug: multi join
+//---- scale tank size
 //aim target when reburn
 // fix controller scale issue
 // fix key down keep shoot

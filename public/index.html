@@ -7,22 +7,22 @@
     <!-- CSS -->
     <link href="css/style.css" rel="stylesheet">
     <!-- liberary -->
-    <!-- <script src="https://code.jquery.com/jquery-1.12.4.min.js"
-        integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous">
-    </script> -->
     <script src="js/socket-io.js"></script>
     <!-- <script src="js/inobounce.js"></script> -->
     <script src="js/pixi.js"></script>
     <script src="js/vue.js"></script>
     <script src="js/utils.js"></script>
     <!-- <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script> -->
-    <!-- main -->
-    
 </head>
 
 <body style="opacity:1">
+<<<<<<< HEAD
     <!-- <div class='preload'>
         <img src='images/boom.gif' />
+=======
+    <div class='preload'>
+        <!-- <img src='images/boom.gif' /> -->
+>>>>>>> 4fedb238e842b99b2fbe5c20c7177e8a9882561c
         <img src='images/ground1.png' />
         <img src='images/ground2.png' />
         <img src='images/ground3.png' />
@@ -98,54 +98,8 @@
             <div class='hui axis'><span>{{ battle_set.axis_score }}</span> 軸心軍</div>
             <div class='hui battle_counter'>{{ battle_set.counter}}</div>
         </div>
-        <div v-if='game_set.phase=="battle"' class='fps'>freq: {{ latency }}ms</div>
+        <div v-if='game_set.phase=="battle"' class='fps' :class='{warn: latency > 69 && latency < 100}'>freq: {{ latency }}ms</div>
         <div v-if='game_set.phase=="battle"' class='fps render'>rend: {{ render_cost }}ms</div>
-        <!-- view -->
-        <!-- <div id='main_wrapper' class='main_wrapper' v-show='game_set.phase=="battle"' ></div> -->
-        <!--
-        <div class='main_wrapper' v-if='game_set.phase=="battle"' >
-            <div class='main' :class='{buffer: isBuffer, ground1: battle_set.ground==1,
-                ground2: battle_set.ground==2, ground3: battle_set.ground==3, ground4: battle_set.ground==4, ground5: battle_set.ground==5}'
-                :style='{transform: camara}'>
-                
-                <div v-if='battle_set.result' class='result'>
-                    <p class='result_title'>{{ battle_set.result }}</p>
-                    <div class='crushes'>
-                        <p><span style='color: #03a9f4'>同盟軍 </span>擊破數  {{ battle_set.allience_score }}</p>
-                        <p class='result_detail' v-for='char in characters' v-if='char.camp==1'>
-                            {{char.name}}
-                            <span>{{char.crushes}}</span>
-                        </p>
-                    </div>
-                    <div class='crushes'>
-                        <p><span style='color: #f44336'>軸心軍 </span>擊破數  {{ battle_set.axis_score }}</p>
-                        <p class='result_detail' v-for='char in characters' v-if='char.camp==2'>
-                            {{char.name}}
-                            <span>{{char.crushes}}</span
-                        ></p>
-                    </div>
-                </div>
-                
-                <div v-for='item in characters' class='tank' 
-                    :class='{ hit: item.hit, disable: item.hp == 0, iam: item.char == player, axis:item.camp==2  }' 
-                    :style='{transform: "translate(" + (item.x - 25) + "px," +  (item.y - 25) + "px)"}'>
-                    <div class='tank_name'><span>{{ item.name }}</span></div>
-                    <div class='tank_base' :class='{ left: item.left, right: item.right, up: item.up, down: item.down,
-                                body1: item.body==1, body2: item.body==2, body3: item.body==3, body4: item.body==4 }'></div>
-                    <div class='tank_cannon' :style='{transform: "rotate(" + (item.cannon_angle + 90) + "deg)" }'
-                        :class='{cannon1: item.cannon==1, cannon2: item.cannon==2, cannon3: item.cannon==3, cannon4: item.cannon==4}'></div>
-                    <div class='hp_wrapper'>
-                        <div class='hp_bar' :style='{width: item.hp + "%", backgroundColor:item.color}'></div>
-                    </div>
-                </div>
-                
-                <div v-for='ball in bullets' class='bullet' 
-                    :style='{transform: "translate(" + (ball.x - 5) + "px," +  (ball.y - 5) + "px)"}'
-                    :class='{allience: ball.camp==1, axis: ball.camp==2}'></div>
-            </div>
-        </div>
-        -->
-        
         <!-- controller -->
         <div v-if='game_set.phase=="battle" && player.length > 0'  class='controller'>
             <div class='box direction'>
@@ -159,8 +113,9 @@
         </div>
         <!-- visiter -->
         <div v-if='game_set.phase=="battle" && !player' class='visiter'>觀戰中</div>
+        <!-- new view -->
         <div id='main_wrapper' class='main_wrapper' v-show='game_set.phase=="battle"'>
-            <div id='main_view' class='main' :style='{transform: camara}'></div>
+            <div id='main_view' class='main'></div>
             <div v-if='battle_set.result' class='result'>
                 <p class='result_title'>{{ battle_set.result }}</p>
                 <div class='crushes'>
@@ -180,7 +135,7 @@
             </div>
         </div>
     </div>
-    
+    <!-- main -->
     <script src="js/main.js"></script>
 </body>
 </html>

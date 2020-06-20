@@ -305,6 +305,7 @@ body {
     transform: translateX(-50%);
     /* background-color: #333; */
     overflow: hidden;
+    background-color: #333;
 }
 
 .main {
